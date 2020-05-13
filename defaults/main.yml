@@ -1,0 +1,4 @@
+---
+
+cloud_pip_packages:
+  - awscli

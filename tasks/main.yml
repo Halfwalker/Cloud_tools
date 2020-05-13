@@ -1,0 +1,90 @@
+---
+
+- become: yes
+  block:
+
+#
+# Install AWS cli tools
+#
+
+  - name: Remove existing config files if force_update == true
+    file:
+      path: "{{ item }}"
+      state: absent
+    when: force_update
+    with_items:
+      - "/home/{{ username }}/.aws/aws-config"
+      - "/home/{{ username }}/.aws/aws-credentials"
+    become_user: "{{ username }}"
+
+  - name: Ensure config dirs are there
+    file:
+      path: "/home/{{ username }}/{{ item }}"
+      state: directory
+      owner: "{{ username }}"
+      group: "{{ username }}"
+    with_items:
+      - .aws
+    tags:
+      - conffiles
+
+  - name: Copy .aws configuration files if not there
+    copy:
+      src: "{{ item }}"
+      dest: /home/{{ username }}/.aws/{{ item }}
+      force: no
+      owner: "{{ username }}"
+      group: "{{ username }}"
+    with_items:
+      - aws-config
+      - aws-credentials
+    tags:
+      - conffiles
+
+  # Only run when NOT in check mode, as python pkg_resources may not yet
+  # have been installed by "Install general packages" task
+  - name: Install packages via pip
+    pip:
+      name: "{{ cloud_pip_packages }}"
+      state: present
+    when: ansible_check_mode == false
+
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html
+  - name: Install binary version of Amazon ECS cli tool
+    get_url:
+      url: https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+      dest: /usr/local/bin/ecs-cli
+      mode: u=rwx,g=rx,o=rx
+    when: server_only is not defined
+
+#
+# Install Azure cli
+#
+
+  - name: Add Microsoft Azure key
+    apt_key:
+      url: "{{ item }}"
+      state: present
+    with_items:
+      - https://packages.microsoft.com/keys/microsoft.asc
+
+  - name: Copy azure-specific apt config to bypass any apt-cacher-ng
+    copy:
+      src: 11azure.apt
+      dest: /etc/apt/apt.conf.d/11azure
+
+  - name: Install Microsoft repo
+    apt_repository:
+      repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+      state: present
+      update_cache: yes
+
+  - name: Install Microsoft Azure cli tool
+    apt:
+      state: present
+      install_recommends: no
+      name: azure-cli
+
+  #
+  # block
+
