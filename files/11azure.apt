@@ -1,2 +1,0 @@
-# apt-cacher-ng doesn't like going through ssl
-Acquire::https::Proxy::packages.microsoft.com "DIRECT";

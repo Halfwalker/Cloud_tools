@@ -57,6 +57,13 @@
       mode: u=rwx,g=rx,o=rx
     when: server_only is not defined
 
+  # https repos won't go through apt-cacher, so bypass them
+  # NOTE: This has url patterns matching https repos from below
+  - name: Copy azure-specific apt config to bypass any apt-cacher-ng
+    copy:
+      src: 11cloud_tools.apt
+      dest: /etc/apt/apt.conf.d/11cloud_tools
+
 #
 # Install Azure cli
 #
@@ -67,11 +74,6 @@
       state: present
     with_items:
       - https://packages.microsoft.com/keys/microsoft.asc
-
-  - name: Copy azure-specific apt config to bypass any apt-cacher-ng
-    copy:
-      src: 11azure.apt
-      dest: /etc/apt/apt.conf.d/11azure
 
   - name: Install Microsoft repo
     apt_repository:
@@ -84,6 +86,73 @@
       state: present
       install_recommends: no
       name: azure-cli
+
+#
+# Install Helm
+#
+
+  - name: Add Helm key
+    apt_key:
+      url: "{{ item }}"
+      state: present
+    with_items:
+      - https://baltocdn.com/helm/signing.asc
+
+  - name: Install Helm repo
+    apt_repository:
+      repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+      state: present
+      update_cache: yes
+
+  - name: Install Helm cli tool
+    apt:
+      state: present
+      install_recommends: no
+      name: helm
+
+#
+# Install Kubernetes tools
+#
+
+  - name: Add Google Kubernetes key
+    apt_key:
+      url: "{{ item }}"
+      state: present
+    with_items:
+      - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+  - name: Install Kubernetes repo - ugh for bionic have to use xenial
+    apt_repository:
+      repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+      state: present
+      update_cache: yes
+
+  - name: Install Kubernetes kubectl cli tool
+    apt:
+      state: present
+      install_recommends: no
+      name: kubectl
+
+#
+# Install Skaffold directly
+#
+
+  - name: Add Skaffold binary
+    get_url:
+      url: https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+      dest: /usr/local/bin/skaffold
+      mode: 0755
+
+#
+# Install minikube directly
+# https://minikube.sigs.k8s.io/docs/start/
+#
+
+  - name: Add minikube binary
+    get_url:
+      url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+      dest: /usr/local/bin/minikube
+      mode: 0755
 
   #
   # block

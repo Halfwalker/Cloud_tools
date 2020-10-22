@@ -2,3 +2,24 @@
 
 cloud_pip_packages:
   - awscli
+
+# Not live yet, still using individual tasks
+cloud_ppa_packages:
+  - name: Kubernetes
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    packages:
+      - kubectl
+  - name: Azure
+    repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+    key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    packages:
+      - azure-cli
+    extra_files:
+      - src: 11azure.apt
+        dest: /etc/apt/apt.conf.d/11azure
+  - name: Helm
+    repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+    key: https://baltocdn.com/helm/signing.asc
+    packages:
+      - helm
