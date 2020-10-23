@@ -1,0 +1,248 @@
+---
+
+#
+# This installs a selection of tools useful for working with cloud environments
+# Install latest ansible with :
+#
+#   sudo apt install --no-install-recommends software-properties-common
+#   sudo add-apt-repository ppa:ansible/ansible
+#   sudo apt install --no-install-recommends ansible
+#
+# Create a hosts file with the following contents
+#
+#   localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+#
+# Install with
+#
+#   ansible-playbook -K -i hosts cloud_tools.yml -l localhost
+
+- hosts: localhost
+  gather_facts: true
+
+  vars:
+    # We need these tools for the playbook to work
+    cloud_prereq_packages:
+      - gpg-agent
+      - python{{ ansible_python.version.major }}-setuptools
+      - python{{ ansible_python.version.major }}-pip
+      - python{{ ansible_python.version.major }}-jmespath
+      - python-jmespath
+
+    cloud_pip_packages:
+      - awscli
+
+    # Generic aws configs if they don't already exist
+    # Fill in your own creds later
+    cloud_aws_configs:
+      - src: |
+          [default]
+          region = us-east-1
+        dest: aws-config
+        mode: 0644
+      - src: |
+          [default]
+          aws_access_key_id =
+          aws_secret_access_key =
+        dest: aws-credentials
+        mode: 0600
+
+    # Packages available via PPA for Ubuntu
+    cloud_ppa_packages:
+      - name: Kubernetes
+        # Ugly - they only have a xenial version for xenial/bionic
+        # TODO - handle all distros cleanly
+        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+        key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        packages:
+          - kubectl
+      - name: Azure
+        repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+        key: https://packages.microsoft.com/keys/microsoft.asc
+        packages:
+          - azure-cli
+      - name: Helm
+        repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+        key: https://baltocdn.com/helm/signing.asc
+        packages:
+          - helm
+
+    # Which docker tools to install
+    # repo:       Where to find this tool on github
+    # filename:   Final /usr/local/bin/<filename>
+    # completion: Name of bash completion file in url or NONE
+    # jmesquery:  Query to identify the exact download url we want
+    cloud_docker_tools:
+      - repo: docker/machine
+        filename: docker-machine
+        completion: docker-machine.bash
+        jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
+      - repo: docker/compose
+        filename: docker-compose
+        completion: docker-compose
+        jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
+      # dive - nice docker image analysis tool
+      - repo: wagoodman/dive
+        filename: dive
+        completion: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, 'amd64.deb')].browser_download_url"
+
+    # Packages that are direct downloads of the binary
+    cloud_binary_tools:
+      - name: Minikube
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        dest: /usr/local/bin/minikube
+      - name: Skaffold
+        url: https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+        dest: /usr/local/bin/skaffold
+      - name: dlayer stats tool
+        url: https://s3.amazonaws.com/wercker-development/dlayer/master/latest/linux_amd64/dlayer
+        dest: /usr/local/bin/dlayer
+      - name: AWS ECS cli
+        url: https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+        dest: /usr/local/bin/ecs-cli
+
+    # This template is used
+    # to build a set_fact with all required info about each tool
+    # It requires that the items are done like (in the task) :
+    #    with_together:
+    #      - "{{ docker_releases.results }}"
+    #      - "{{ cloud_docker_tools }}"
+    docker_tools_template:
+      filename: "{{ item.1.filename }}"
+      version: "{{ item.0.json.tag_name }}"
+      url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
+
+  tasks:
+    - become: yes
+      block:
+
+      #
+      # Prerequisites
+      #
+
+      # https repos won't go through apt-cacher, so bypass them
+      # NOTE: This has url patterns matching https repos from below
+      - name: Copy apt config to bypass any apt-cacher-ng or other proxy
+        copy:
+          content: |
+            # apt-cacher-ng doesn't like going through ssl
+            Acquire::https::Proxy::packages.microsoft.com "DIRECT";
+            Acquire::https::Proxy::baltocdn.com "DIRECT";
+            Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
+            Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
+          dest: /etc/apt/apt.conf.d/11cloud_tools
+
+      - name: Install prerequisite tools
+        apt:
+          state: present
+          install_recommends: no
+          name: "{{ cloud_prereq_packages }}"
+
+      #
+      # Install tools via python pip
+      #
+      - name: Ensure config dirs are there
+        file:
+          path: "/home/{{ ansible_user_id }}/{{ item }}"
+          state: directory
+          owner: "{{ ansible_user_id }}"
+          group: "{{ ansible_user_id }}"
+        with_items:
+          - .aws
+
+      - name: Copy .aws configuration files if not there
+        copy:
+          content: "{{ item.src }}"
+          dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
+          force: no
+          owner: "{{ ansible_user_id }}"
+          group: "{{ ansible_user_id }}"
+          mode: "{{ item.mode }}"
+        with_items: "{{ cloud_aws_configs }}"
+
+      # Only run when NOT in check mode, as python pkg_resources may not yet
+      # have been installed
+      - name: Install packages via pip
+        pip:
+          name: "{{ cloud_pip_packages }}"
+          state: present
+        when: ansible_check_mode == false
+
+      #
+      # Install tools via PPA
+      #
+      - name: Add repo key
+        apt_key:
+          url: "{{ item.key }}"
+          state: present
+        with_items: "{{ cloud_ppa_packages }}"
+
+      - name: Install repo
+        apt_repository:
+          repo: "{{ item.repo }}"
+          state: present
+          update_cache: yes
+        with_items: "{{ cloud_ppa_packages }}"
+
+      - name: Install tool from PPA
+        apt:
+          state: present
+          install_recommends: no
+          name: "{{ item.packages }}"
+        with_items: "{{ cloud_ppa_packages }}"
+
+      #
+      # Install binary tools directly
+      #
+      - name: Add binary tool
+        get_url:
+          url: "{{ item.url }}"
+          dest: "{{ item.dest }}"
+          mode: 0755
+        with_items: "{{ cloud_binary_tools }}"
+
+      #
+      # Docker tools
+      #
+
+      - name: Get latest release for each git package in docker_tools
+        uri:
+          url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
+          method: GET
+          return_content: true
+          status_code: 200
+          body_format: json
+          validate_certs: false
+          force_basic_auth: no
+        register: docker_releases
+        until: docker_releases.status == 200
+        retries: 5
+        with_items: "{{ cloud_docker_tools }}"
+        check_mode: no
+
+      - name: Build list of tools, versions, urls
+        set_fact:
+          docker_tools_info: "{{ docker_tools_info | default([]) + [ docker_tools_template ] }}"
+        with_together:
+          - "{{ docker_releases.results }}"
+          - "{{ cloud_docker_tools }}"
+        check_mode: no
+
+      - name: Install tool executables to /usr/local/bin
+        get_url:
+          url: "{{ item.url[0] }}"
+          dest: "/usr/local/bin/{{ item.filename }}"
+          mode: 0755
+        with_items:
+          - "{{ docker_tools_info }}"
+
+      - name: Fetch bash completion for the tools
+        get_url:
+          url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion }}
+          dest: /etc/bash_completion.d/{{ item.filename }}
+        with_items:
+          - "{{ cloud_docker_tools }}"
+        when: item.completion != "NONE"
+      #
+      # block
+
