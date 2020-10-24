@@ -70,20 +70,24 @@
     # Which docker tools to install
     # repo:       Where to find this tool on github
     # filename:   Final /usr/local/bin/<filename>
+    # type:       Type of download - deb=archive, exe=binary executable
     # completion: Name of bash completion file in url or NONE
     # jmesquery:  Query to identify the exact download url we want
     cloud_docker_tools:
       - repo: docker/machine
         filename: docker-machine
+        type: exe
         completion: docker-machine.bash
         jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
       - repo: docker/compose
         filename: docker-compose
+        type: exe
         completion: docker-compose
         jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
       # dive - nice docker image analysis tool
       - repo: wagoodman/dive
         filename: dive
+        type: deb
         completion: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'amd64.deb')].browser_download_url"
 
@@ -111,6 +115,7 @@
     docker_tools_template:
       filename: "{{ item.1.filename }}"
       version: "{{ item.0.json.tag_name }}"
+      type: "{{ item.1.type }}"
       url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
@@ -234,8 +239,14 @@
           url: "{{ item.url[0] }}"
           dest: "/usr/local/bin/{{ item.filename }}"
           mode: 0755
-        with_items:
-          - "{{ docker_tools_info }}"
+        with_items: "{{ docker_tools_info }}"
+        when: item.type == "exe"
+
+      - name: Install deb packages
+        apt:
+          deb: "{{ item.url[0] }}"
+        with_items: "{{ docker_tools_info }}"
+        when: item.type == "deb"
 
       - name: Fetch bash completion for the tools
         get_url:
