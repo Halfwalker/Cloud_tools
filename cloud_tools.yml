@@ -55,6 +55,7 @@
         key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         packages:
           - kubectl
+          - kubeadm
       - name: Azure
         repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
         key: https://packages.microsoft.com/keys/microsoft.asc
