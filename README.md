@@ -21,6 +21,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 ### Tools installed
 
 * [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
+* [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 * [Skaffold](https://skaffold.dev/docs/install/)
 * [docker-machine](https://github.com/docker/machine/releases)
