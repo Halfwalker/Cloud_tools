@@ -71,29 +71,34 @@
     # repo:       Where to find this tool on github
     # filename:   Final /usr/local/bin/<filename>
     # type:       Type of download - deb=archive, exe=binary executable
-    # completion: Name of bash completion file in url or NONE
+    # completion: Name of zsh/bash completion file in url or NONE
     # jmesquery:  Query to identify the exact download url we want
     cloud_git_tools:
+      # Super annoying, docker-{machine,compose} use DIFFERENT completion filenames
       - repo: docker/machine
         filename: docker-machine
         type: exe
-        completion: docker-machine.bash
+        completion_zsh: _docker-machine
+        completion_bash: docker-machine.bash
         jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
       - repo: docker/compose
         filename: docker-compose
         type: exe
-        completion: docker-compose
+        completion_zsh: _docker-compose
+        completion_bash: docker-compose
         jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
       # dive - nice docker image analysis tool
       - repo: wagoodman/dive
         filename: dive
         type: deb
-        completion: NONE
+        completion_zsh: NONE
+        completion_bash: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'amd64.deb')].browser_download_url"
       - repo: kubernetes-sigs/kind
         filename: kind
         type: exe
-        completion: NONE
+        completion_zsh: NONE
+        completion_bash: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-amd64')].browser_download_url"
 
     # Packages that are direct downloads of the binary
@@ -253,13 +258,77 @@
         with_items: "{{ docker_tools_info }}"
         when: item.type == "deb"
 
-      - name: Fetch bash completion for the tools
+      #
+      # Install shell completions
+      # Will only work if bash-completion is installed for bash
+      #
+      - name: Check if zsh available
+        stat:
+          path: /usr/bin/zsh
+        register: zsh_installed
+        check_mode: no
+
+      - name: Fetch zsh completion for the tools
         get_url:
-          url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion }}
-          dest: /etc/bash_completion.d/{{ item.filename }}
+          url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/zsh/{{ item.completion_zsh }}
+          dest: /usr/share/zsh/vendor-completions/{{ item.completion_zsh }}
         with_items:
           - "{{ cloud_git_tools }}"
-        when: item.completion != "NONE"
+        when:
+          - item.completion_zsh != "NONE"
+          - zsh_installed.stat.exists
+
+      - name: Fetch bash completion for the tools
+        get_url:
+          url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion_bash }}
+          dest: /etc/bash_completion.d/{{ item.completion_bash }}
+        with_items:
+          - "{{ cloud_git_tools }}"
+        when: item.completion_bash != "NONE"
+
+      - name: Create zsh completion for kubectl, kubeadm, minikube
+        shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
+        args:
+          creates: "/usr/share/zsh/vendor-completions/_{{ item | basename }}"
+        with_items:
+          - /usr/bin/kubectl
+          - /usr/bin/kubeadm
+          - /usr/local/bin/minikube
+        when: zsh_installed.stat.exists
+
+      - name: Create bash completion for kubectl, kubeadm, minikube
+        shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
+        args:
+          creates: "/etc/bash-completion.d/_{{ item | basename }}"
+        with_items:
+          - /usr/bin/kubectl
+          - /usr/bin/kubeadm
+          - /usr/local/bin/minikube
+
+      # bash completion already installed by package
+      - name: Create Azure cli zsh completion
+        file:
+          src: /etc/bash_completion.d/azure-cli
+          dest: /usr/share/zsh/vendor-completions/_azure-cli
+          state: link
+          force: yes
+        when: zsh_installed.stat.exists
+
+      - name: Create AWS cli zsh completion
+        file:
+          src: /usr/local/bin/aws_zsh_completer.sh
+          dest: /usr/share/zsh/vendor-completions/_aws
+          state: link
+          force: yes
+        when: zsh_installed.stat.exists
+
+      - name: Create AWS cli bash completion
+        file:
+          src: /usr/local/bin/aws_bash_completer
+          dest: /etc/bash_completion.d/_aws
+          state: link
+          force: yes
+
       #
       # block
 
