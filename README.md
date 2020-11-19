@@ -30,4 +30,5 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [dive docker layer stats](https://github.com/wagoodman/dive)
 * [AWS aws-cli](https://aws.amazon.com/cli/)
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
+* [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)

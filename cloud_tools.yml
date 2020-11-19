@@ -108,6 +108,12 @@
         completion_zsh: NONE
         completion_bash: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-amd64')].browser_download_url"
+      - repo: weaveworks/eksctl
+        filename: eksctl
+        type: archive
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, 'Linux_amd64.tar.gz')].browser_download_url"
 
     # Packages that are direct downloads of the binary
     cloud_binary_tools:
@@ -304,7 +310,7 @@
           - "{{ cloud_git_tools }}"
         when: item.completion_bash != "NONE"
 
-      - name: Create zsh completion for kubectl, kubeadm, minikube
+      - name: Create zsh completion for kubectl, kubeadm, minikube, eksctl
         shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
         args:
           creates: "/usr/share/zsh/vendor-completions/_{{ item | basename }}"
@@ -312,9 +318,10 @@
           - /usr/bin/kubectl
           - /usr/bin/kubeadm
           - /usr/local/bin/minikube
+          - /usr/local/bin/eksctl
         when: zsh_installed.stat.exists
 
-      - name: Create bash completion for kubectl, kubeadm, minikube
+      - name: Create bash completion for kubectl, kubeadm, minikube, eksctl
         shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
         args:
           creates: "/etc/bash-completion.d/_{{ item | basename }}"
@@ -322,6 +329,7 @@
           - /usr/bin/kubectl
           - /usr/bin/kubeadm
           - /usr/local/bin/minikube
+          - /usr/local/bin/eksctl
 
       # bash completion already installed by package
       - name: Create Azure cli zsh completion
