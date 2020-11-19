@@ -75,7 +75,10 @@
     # Which tools to install from github
     # repo:       Where to find this tool on github
     # filename:   Final /usr/local/bin/<filename>
-    # type:       Type of download - deb=archive, exe=binary executable
+    # type:     archive - these are unpacked into /usr/local/bin unless unpack: is specified
+    #           exe     - these are just direct executables, raw and unfiltered
+    #                     placed in /usr/local/bin
+    #           deb     - release has an ordinary .deb that can be installed
     # completion: Name of zsh/bash completion file in url or NONE
     # jmesquery:  Query to identify the exact download url we want
     cloud_git_tools:
@@ -256,6 +259,16 @@
           mode: 0755
         with_items: "{{ cloud_tools_info }}"
         when: item.type == "exe"
+
+      - name: Download and install archive type tool
+        unarchive:
+          src: "{{ item.url[0] }}"
+          remote_src: yes
+          dest: "/usr/local/bin"
+          creates: "/usr/local/bin/{{ item.filename }}"
+          mode: 0755
+        with_items: "{{ cloud_tools_info }}"
+        when: item.type == "archive"
 
       - name: Install deb packages
         apt:
