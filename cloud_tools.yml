@@ -125,9 +125,9 @@
     # to build a set_fact with all required info about each tool
     # It requires that the items are done like (in the task) :
     #    with_together:
-    #      - "{{ docker_releases.results }}"
+    #      - "{{ cloud_git_releases.results }}"
     #      - "{{ cloud_git_tools }}"
-    docker_tools_template:
+    cloud_tools_template:
       filename: "{{ item.1.filename }}"
       version: "{{ item.0.json.tag_name }}"
       type: "{{ item.1.type }}"
@@ -223,10 +223,10 @@
         with_items: "{{ cloud_binary_tools }}"
 
       #
-      # Docker tools
+      # Tools from github
       #
 
-      - name: Get latest release for each git package in docker_tools
+      - name: Get latest release for each git package in cloud_tools
         uri:
           url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
           method: GET
@@ -235,17 +235,17 @@
           body_format: json
           validate_certs: false
           force_basic_auth: no
-        register: docker_releases
-        until: docker_releases.status == 200
+        register: cloud_git_releases
+        until: cloud_git_releases.status == 200
         retries: 5
         with_items: "{{ cloud_git_tools }}"
         check_mode: no
 
       - name: Build list of tools, versions, urls
         set_fact:
-          docker_tools_info: "{{ docker_tools_info | default([]) + [ docker_tools_template ] }}"
+          cloud_tools_info: "{{ cloud_tools_info | default([]) + [ cloud_tools_template ] }}"
         with_together:
-          - "{{ docker_releases.results }}"
+          - "{{ cloud_git_releases.results }}"
           - "{{ cloud_git_tools }}"
         check_mode: no
 
@@ -254,13 +254,13 @@
           url: "{{ item.url[0] }}"
           dest: "/usr/local/bin/{{ item.filename }}"
           mode: 0755
-        with_items: "{{ docker_tools_info }}"
+        with_items: "{{ cloud_tools_info }}"
         when: item.type == "exe"
 
       - name: Install deb packages
         apt:
           deb: "{{ item.url[0] }}"
-        with_items: "{{ docker_tools_info }}"
+        with_items: "{{ cloud_tools_info }}"
         when: item.type == "deb"
 
       #
