@@ -319,6 +319,7 @@
           - /usr/bin/kubeadm
           - /usr/local/bin/minikube
           - /usr/local/bin/eksctl
+          - /usr/local/bin/kind
         when: zsh_installed.stat.exists
 
       - name: Create bash completion for kubectl, kubeadm, minikube, eksctl
@@ -330,6 +331,7 @@
           - /usr/bin/kubeadm
           - /usr/local/bin/minikube
           - /usr/local/bin/eksctl
+          - /usr/local/bin/kind
 
       # bash completion already installed by package
       - name: Create Azure cli zsh completion
