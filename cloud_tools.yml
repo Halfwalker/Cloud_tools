@@ -35,6 +35,7 @@
 
     cloud_pip_packages:
       - awscli
+      - gimme-aws-creds
 
     # Generic aws configs if they don't already exist
     # Fill in your own creds later
