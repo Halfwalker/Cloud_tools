@@ -197,6 +197,7 @@
         pip:
           name: "{{ cloud_pip_packages }}"
           state: present
+          extra_args: "--upgrade"
         when: ansible_check_mode == false
 
       #
