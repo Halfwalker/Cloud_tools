@@ -16,7 +16,7 @@
 #
 #   ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 
-- hosts: localhost
+- hosts: all
   gather_facts: true
 
   vars:
@@ -42,6 +42,7 @@
     # We need these tools for the playbook to work
     cloud_prereq_packages:
       common:
+        - bash-completion
         - gpg-agent
         - python{{ ansible_python.version.major }}-setuptools
         - python{{ ansible_python.version.major }}-pip
