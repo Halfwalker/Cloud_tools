@@ -14,17 +14,18 @@ sudo apt install --no-install-recommends ansible
 localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
 ```
 
-### Install with
+### Install all tools with
 ```
 ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 ```
-### Tools installed
 
-* [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
-* [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
-* [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-* [Kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
-* [Skaffold](https://skaffold.dev/docs/install/)
+### Default list of tools installed
+
+* [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
+* [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
+* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+* [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+* [skaffold](https://skaffold.dev/docs/install/)
 * [docker-machine](https://github.com/docker/machine/releases)
 * [docker-compose](https://github.com/docker/compose/releases)
 * [dive docker layer stats](https://github.com/wagoodman/dive)
@@ -33,3 +34,11 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
 * [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+### Install subset of tools
+
+Build a list of the tools to install with the following syntax - set the variable **cloud_tools** to the list of desired tools by name above.  The list should be comma-delimited, inside square-brackets.
+```
+ansible-playbook -K -i hosts cloud_tools.yml -l localhost --extra-vars '{cloud_tools: [ awscli, eksctl, kubectl ] }'
+```
+
