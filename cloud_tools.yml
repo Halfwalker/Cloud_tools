@@ -343,6 +343,7 @@
         when:
           - item.completion_zsh != "NONE"
           - zsh_installed.stat.exists
+          - item.filename in cloud_tools
 
       - name: Fetch bash completion for the tools
         get_url:
@@ -350,9 +351,11 @@
           dest: /etc/bash_completion.d/{{ item.completion_bash }}
         with_items:
           - "{{ cloud_git_tools }}"
-        when: item.completion_bash != "NONE"
+        when:
+          - item.completion_bash != "NONE"
+          - item.filename in cloud_tools
 
-      - name: Create zsh completion for kubectl, kubeadm, minikube, eksctl
+      - name: Create zsh completion for tools that generate configs
         shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
         args:
           creates: "/usr/share/zsh/vendor-completions/_{{ item | basename }}"
@@ -362,18 +365,24 @@
           - /usr/local/bin/minikube
           - /usr/local/bin/eksctl
           - /usr/local/bin/kind
-        when: zsh_installed.stat.exists
+          - /usr/local/bin/skaffold
+        when:
+          - zsh_installed.stat.exists
+          - item | basename  in cloud_tools
 
-      - name: Create bash completion for kubectl, kubeadm, minikube, eksctl
+      - name: Create bash completion for tools that generate configs
         shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
         args:
-          creates: "/etc/bash-completion.d/_{{ item | basename }}"
+          creates: "/etc/bash_completion.d/_{{ item | basename }}"
         with_items:
           - /usr/bin/kubectl
           - /usr/bin/kubeadm
           - /usr/local/bin/minikube
           - /usr/local/bin/eksctl
           - /usr/local/bin/kind
+          - /usr/local/bin/skaffold
+        when:
+          - item | basename in cloud_tools
 
       # bash completion already installed by package
       - name: Create Azure cli zsh completion
@@ -382,7 +391,9 @@
           dest: /usr/share/zsh/vendor-completions/_azure-cli
           state: link
           force: yes
-        when: zsh_installed.stat.exists
+        when:
+          - zsh_installed.stat.exists
+          - '"azure_cli" in cloud_tools'
 
       - name: Create AWS cli zsh completion
         file:
@@ -390,7 +401,9 @@
           dest: /usr/share/zsh/vendor-completions/_aws
           state: link
           force: yes
-        when: zsh_installed.stat.exists
+        when:
+          - zsh_installed.stat.exists
+          - '"aws-cli" in cloud_tools'
 
       - name: Create AWS cli bash completion
         file:
@@ -398,6 +411,8 @@
           dest: /etc/bash_completion.d/_aws
           state: link
           force: yes
+        when:
+          - '"aws-cli" in cloud_tools'
 
       #
       # block
