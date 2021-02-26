@@ -1,0 +1,34 @@
+---
+
+- name: Add repo key
+  apt_key:
+    url: "{{ ppa.key }}"
+    state: present
+  with_items: "{{ ppa.packages }}"
+  when: item in cloud_tools
+
+- name: Install repo
+  apt_repository:
+    repo: "{{ ppa.repo }}"
+    state: present
+    update_cache: yes
+  # with_items: "{{ cloud_ppa_packages }}"
+  with_items: "{{ ppa.packages }}"
+  when: item in cloud_tools
+
+# Stupid ansible - can't just pass a with_items list into apt now, have to
+# have all the pkgs right on the name: line.  So here we build a variable
+# to hold the list of pkgs that are in the cloud_tools var
+- name: Build list of PPA packages to install
+  set_fact:
+    packages_via_ppa: "{{ packages_via_ppa | default([]) + [ item ] }}"
+  with_items: "{{ ppa.packages }}"
+  when: item in cloud_tools
+
+- name: Install tool(s) from PPA
+  apt:
+    state: present
+    install_recommends: no
+    name: "{{ packages_via_ppa }}"
+  when: packages_via_ppa | length > 0
+
