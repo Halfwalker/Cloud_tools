@@ -30,7 +30,7 @@
       - docker-machine
       - docker-compose
       - dive
-      - aws-cli
+      - awscli
       - gimme-aws-creds
       - ecs-cli
       - eksctl
@@ -54,7 +54,7 @@
       - python-jmespath
 
     cloud_pip_packages:
-      - awscli
+      # - awscli
       - gimme-aws-creds
 
     # Generic aws configs if they don't already exist
@@ -247,6 +247,16 @@
 
 
       #
+      # Install awscli v2
+      #
+      - name: Install awscli v2
+        include_tasks: install_awscli.yml
+        when: '"awscli" in cloud_tools'
+
+      - pause:
+
+
+      #
       # Install tools via PPA
       #
       - name: Install tools via PPA
@@ -271,7 +281,6 @@
       #
       # Tools from github
       #
-
       - name: Get latest release for each git package in cloud_tools
         uri:
           url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
@@ -405,7 +414,7 @@
           force: yes
         when:
           - zsh_installed.stat.exists
-          - '"aws-cli" in cloud_tools'
+          - '"awscli" in cloud_tools'
 
       - name: Create AWS cli bash completion
         file:
@@ -414,7 +423,7 @@
           state: link
           force: yes
         when:
-          - '"aws-cli" in cloud_tools'
+          - '"awscli" in cloud_tools'
 
       #
       # block

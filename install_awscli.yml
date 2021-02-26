@@ -1,0 +1,24 @@
+---
+
+# awscli v2 has a very manual install process :(
+
+- become: yes
+  block:
+    #
+    - name: Fetch awscli v2 latest
+      unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        remote_src: yes
+        dest: "/tmp"
+        creates: "/tmp/aws"
+
+    - name: Install awscli v2
+      command: /tmp/aws/install
+      args:
+        creates: /usr/local/bin/aws
+
+    - name: Clean up
+      file:
+        path: /tmp/aws
+        state: absent
+
