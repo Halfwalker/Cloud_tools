@@ -241,6 +241,7 @@
           state: present
           extra_args: "--upgrade"
         when:
+          - packages_via_pip is defined
           - packages_via_pip | length > 0
           - ansible_check_mode == false
 
