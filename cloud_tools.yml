@@ -198,6 +198,7 @@
           install_recommends: no
           name: "{{ cloud_prereq_packages.common }} + {{ cloud_prereq_packages[ansible_distribution_release] }}"
 
+
       #
       # Install tools via python pip
       #
@@ -209,6 +210,7 @@
           group: "{{ ansible_user_id }}"
         with_items:
           - .aws
+        when: '"awscli" in cloud_tools'
 
       - name: Copy .aws configuration files if not there
         copy:
@@ -219,15 +221,28 @@
           group: "{{ ansible_user_id }}"
           mode: "{{ item.mode }}"
         with_items: "{{ cloud_aws_configs }}"
+        when: '"awscli" in cloud_tools'
+
+      # Stupid ansible - can't just pass a with_items list into apt now, have to
+      # have all the pkgs right on the name: line.  So here we build a variable
+      # to hold the list of pkgs that are in the cloud_tools var
+      - name: Build list of pip  packages to install
+        set_fact:
+          packages_via_pip: "{{ packages_via_pip | default([]) + [ item ] }}"
+        with_items: "{{ cloud_pip_packages }}"
+        when: item in cloud_tools
 
       # Only run when NOT in check mode, as python pkg_resources may not yet
       # have been installed
       - name: Install packages via pip
         pip:
-          name: "{{ cloud_pip_packages }}"
+          name: "{{ packages_via_pip }}"
           state: present
           extra_args: "--upgrade"
-        when: ansible_check_mode == false
+        when:
+          - packages_via_pip | length > 0
+          - ansible_check_mode == false
+
 
       #
       # Install tools via PPA
@@ -248,6 +263,8 @@
           dest: "{{ item.dest }}"
           mode: 0755
         with_items: "{{ cloud_binary_tools }}"
+        when: item.name in cloud_tools
+
 
       #
       # Tools from github
@@ -282,7 +299,9 @@
           dest: "/usr/local/bin/{{ item.filename }}"
           mode: 0755
         with_items: "{{ cloud_tools_info }}"
-        when: item.type == "exe"
+        when:
+          - item.type == "exe"
+          - item.filename in cloud_tools
 
       - name: Download and install archive type tool
         unarchive:
@@ -292,13 +311,18 @@
           creates: "/usr/local/bin/{{ item.filename }}"
           mode: 0755
         with_items: "{{ cloud_tools_info }}"
-        when: item.type == "archive"
+        when:
+          - item.type == "archive"
+          - item.filename in cloud_tools
 
       - name: Install deb packages
         apt:
           deb: "{{ item.url[0] }}"
         with_items: "{{ cloud_tools_info }}"
-        when: item.type == "deb"
+        when:
+          - item.type == "deb"
+          - item.filename in cloud_tools
+
 
       #
       # Install shell completions
