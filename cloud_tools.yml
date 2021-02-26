@@ -20,6 +20,25 @@
   gather_facts: true
 
   vars:
+    # Default list of tools
+    cloud_default_tools:
+      - minikube
+      - kind
+      - kubectl
+      - kubeadm
+      - skaffold
+      - docker-machine
+      - docker-compose
+      - dive
+      - aws-cli
+      - gimme-aws-creds
+      - ecs-cli
+      - eksctl
+      - azure-cli
+
+    # This variable can be overridden on the cmdline to select which tools to install
+    cloud_tools: "{{ cloud_default_tools }}"
+
     # We need these tools for the playbook to work
     cloud_prereq_packages:
       common:
@@ -144,6 +163,16 @@
       url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
+    - pause:
+        prompt: |
+          #---------------------------
+          |   Installing these tools
+          {% for tool in cloud_tools %}
+          |     - {{ tool }}
+          {% endfor %}
+          #---------------------------
+
+
     - become: yes
       block:
 
@@ -203,25 +232,12 @@
       #
       # Install tools via PPA
       #
-      - name: Add repo key
-        apt_key:
-          url: "{{ item.key }}"
-          state: present
-        with_items: "{{ cloud_ppa_packages }}"
+      - name: Install tools via PPA
+        include_tasks: install_ppa.yml
+        loop: "{{ cloud_ppa_packages }}"
+        loop_control:
+          loop_var: ppa
 
-      - name: Install repo
-        apt_repository:
-          repo: "{{ item.repo }}"
-          state: present
-          update_cache: yes
-        with_items: "{{ cloud_ppa_packages }}"
-
-      - name: Install tool from PPA
-        apt:
-          state: present
-          install_recommends: no
-          name: "{{ item.packages }}"
-        with_items: "{{ cloud_ppa_packages }}"
 
       #
       # Install binary tools directly
