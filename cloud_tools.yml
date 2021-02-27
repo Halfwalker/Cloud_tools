@@ -64,13 +64,13 @@
       - src: |
           [default]
           region = us-east-1
-        dest: aws-config
+        dest: config
         mode: 0644
       - src: |
           [default]
           aws_access_key_id =
           aws_secret_access_key =
-        dest: aws-credentials
+        dest: credentials
         mode: 0600
 
     # Packages available via PPA for Ubuntu
@@ -210,27 +210,6 @@
       #
       # Install tools via python pip
       #
-      - name: Ensure config dirs are there
-        file:
-          path: "/home/{{ ansible_user_id }}/{{ item }}"
-          state: directory
-          owner: "{{ ansible_user_id }}"
-          group: "{{ ansible_user_id }}"
-        with_items:
-          - .aws
-        when: '"awscli" in cloud_tools'
-
-      - name: Copy .aws configuration files if not there
-        copy:
-          content: "{{ item.src }}"
-          dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
-          force: no
-          owner: "{{ ansible_user_id }}"
-          group: "{{ ansible_user_id }}"
-          mode: "{{ item.mode }}"
-        with_items: "{{ cloud_aws_configs }}"
-        when: '"awscli" in cloud_tools'
-
       # Stupid ansible - can't just pass a with_items list into apt now, have to
       # have all the pkgs right on the name: line.  So here we build a variable
       # to hold the list of pkgs that are in the cloud_tools var
@@ -259,6 +238,25 @@
       - when: '"awscli" in cloud_tools'
         block:
         #
+        - name: Ensure config dirs are there
+          file:
+            path: "/home/{{ ansible_user_id }}/{{ item }}"
+            state: directory
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_id }}"
+          with_items:
+            - .aws
+
+        - name: Copy .aws configuration files if not there
+          copy:
+            content: "{{ item.src }}"
+            dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
+            force: no
+            owner: "{{ ansible_user_id }}"
+            group: "{{ ansible_user_id }}"
+            mode: "{{ item.mode }}"
+          with_items: "{{ cloud_aws_configs }}"
+
         - name: Fetch awscli v2 latest
           unarchive:
             src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
@@ -333,6 +331,7 @@
         until: cloud_git_releases.status == 200
         retries: 5
         with_items: "{{ cloud_git_tools }}"
+        when: item.filename in cloud_tools
         check_mode: no
 
       - name: Build list of tools, versions, urls
@@ -341,6 +340,7 @@
         with_together:
           - "{{ cloud_git_releases.results }}"
           - "{{ cloud_git_tools }}"
+        when: item.1.filename in cloud_tools
         check_mode: no
 
       - name: Install tool executables to /usr/local/bin
