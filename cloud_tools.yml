@@ -35,6 +35,7 @@
       - ecs-cli
       - eksctl
       - azure-cli
+      - hammer
 
     # This variable can be overridden on the cmdline to select which tools to install
     cloud_tools: "{{ cloud_default_tools }}"
@@ -92,6 +93,12 @@
         key: https://baltocdn.com/helm/signing.asc
         packages:
           - helm
+      - name: hammer
+        repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+        key: https://deb.theforeman.org/foreman.asc
+        packages:
+          - ruby-hammer-cli
+          - ruby-hammer-cli-foreman
 
     # Which tools to install from github
     # repo:       Where to find this tool on github
