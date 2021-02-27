@@ -249,11 +249,25 @@
       #
       # Install awscli v2
       #
-      - name: Install awscli v2
-        include_tasks: install_awscli.yml
-        when: '"awscli" in cloud_tools'
+      - when: '"awscli" in cloud_tools'
+        block:
+        #
+        - name: Fetch awscli v2 latest
+          unarchive:
+            src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+            remote_src: yes
+            dest: "/tmp"
+            creates: "/tmp/aws"
 
-      - pause:
+        - name: Install awscli v2
+          command: /tmp/aws/install
+          args:
+            creates: /usr/local/bin/aws
+
+        - name: Clean up
+          file:
+            path: /tmp/aws
+            state: absent
 
 
       #
