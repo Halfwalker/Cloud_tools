@@ -3,157 +3,291 @@
 - become: yes
   block:
 
-#
-# Install AWS cli tools
-#
-
   - name: Remove existing config files if force_update == true
     file:
-      path: "{{ item }}"
+      path: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
       state: absent
     when: force_update
-    with_items:
-      - "/home/{{ username }}/.aws/aws-config"
-      - "/home/{{ username }}/.aws/aws-credentials"
-    become_user: "{{ username }}"
+    with_items: "{{ cloud_aws_configs }}"
 
   - name: Ensure config dirs are there
     file:
-      path: "/home/{{ username }}/{{ item }}"
+      path: "/home/{{ ansible_user_id }}/{{ item }}"
       state: directory
-      owner: "{{ username }}"
-      group: "{{ username }}"
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_id }}"
     with_items:
       - .aws
-    tags:
-      - conffiles
-
-  - name: Copy .aws configuration files if not there
-    copy:
-      src: "{{ item }}"
-      dest: /home/{{ username }}/.aws/{{ item }}
-      force: no
-      owner: "{{ username }}"
-      group: "{{ username }}"
-    with_items:
-      - aws-config
-      - aws-credentials
-    tags:
-      - conffiles
-
-  # Only run when NOT in check mode, as python pkg_resources may not yet
-  # have been installed by "Install general packages" task
-  - name: Install packages via pip
-    pip:
-      name: "{{ cloud_pip_packages }}"
-      state: present
-    when: ansible_check_mode == false
-
-  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html
-  - name: Install binary version of Amazon ECS cli tool
-    get_url:
-      url: https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
-      dest: /usr/local/bin/ecs-cli
-      mode: u=rwx,g=rx,o=rx
-    when: server_only is not defined
+      - .hammer
 
   # https repos won't go through apt-cacher, so bypass them
   # NOTE: This has url patterns matching https repos from below
-  - name: Copy azure-specific apt config to bypass any apt-cacher-ng
+  - name: Copy apt config to bypass any apt-cacher-ng or other proxy
     copy:
-      src: 11cloud_tools.apt
+      content: |
+        # apt-cacher-ng doesn't like going through ssl
+        Acquire::https::Proxy::packages.microsoft.com "DIRECT";
+        Acquire::https::Proxy::baltocdn.com "DIRECT";
+        Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
+        Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
       dest: /etc/apt/apt.conf.d/11cloud_tools
 
-#
-# Install Azure cli
-#
-
-  - name: Add Microsoft Azure key
-    apt_key:
-      url: "{{ item }}"
-      state: present
-    with_items:
-      - https://packages.microsoft.com/keys/microsoft.asc
-
-  - name: Install Microsoft repo
-    apt_repository:
-      repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
-      state: present
-      update_cache: yes
-
-  - name: Install Microsoft Azure cli tool
+  - name: Install prerequisite tools
     apt:
       state: present
       install_recommends: no
-      name: azure-cli
+      name: "{{ cloud_prereq_packages.common }} + {{ cloud_prereq_packages[ansible_distribution_release] }}"
 
-#
-# Install Helm
-#
 
-  - name: Add Helm key
-    apt_key:
-      url: "{{ item }}"
+  #
+  # Install tools via python pip
+  #
+  # Stupid ansible - can't just pass a with_items list into apt now, have to
+  # have all the pkgs right on the name: line.  So here we build a variable
+  # to hold the list of pkgs that are in the cloud_tools var
+  - name: Build list of pip  packages to install
+    set_fact:
+      packages_via_pip: "{{ packages_via_pip | default([]) + [ item ] }}"
+    with_items: "{{ cloud_pip_packages }}"
+    when: item in cloud_tools
+
+  # Only run when NOT in check mode, as python pkg_resources may not yet
+  # have been installed
+  - name: Install packages via pip
+    pip:
+      name: "{{ packages_via_pip }}"
       state: present
-    with_items:
-      - https://baltocdn.com/helm/signing.asc
+      extra_args: "--upgrade"
+    when:
+      - packages_via_pip is defined
+      - packages_via_pip | length > 0
+      - ansible_check_mode == false
 
-  - name: Install Helm repo
+
+  #
+  # Install awscli v2
+  #
+  - when: '"awscli" in cloud_tools'
+    block:
+    #
+    - name: Copy .aws configuration files if not there
+      copy:
+        content: "{{ item.src }}"
+        dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
+        force: no
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        mode: "{{ item.mode }}"
+      with_items: "{{ cloud_aws_configs }}"
+
+    - name: Fetch awscli v2 latest
+      unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        remote_src: yes
+        dest: "/tmp"
+        creates: "/tmp/aws"
+
+    - name: Install awscli v2
+      command: /tmp/aws/install
+      args:
+        creates: /usr/local/bin/aws
+
+    - name: Clean up
+      file:
+        path: /tmp/aws
+        state: absent
+    #
+    # block
+
+
+  #
+  # Install tools via PPA
+  #
+  - name: Add repo key for {{ item.name }}
+    apt_key:
+      url: "{{ item.key }}"
+      state: present
+    loop: "{{ cloud_ppa_packages }}"
+    when: item.name in cloud_tools
+
+  - name: Install repo for {{ item.name }}
     apt_repository:
-      repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+      repo: "{{ item.repo }}"
       state: present
       update_cache: yes
+    # with_items: "{{ cloud_ppa_packages }}"
+    loop: "{{ cloud_ppa_packages }}"
+    when: item.name in cloud_tools
 
-  - name: Install Helm cli tool
+  - name: Install {{ item.name }} tool(s) from PPA
     apt:
       state: present
       install_recommends: no
-      name: helm
+      name: "{{ item.packages }}"
+    loop: "{{ cloud_ppa_packages }}"
+    when: item.name in cloud_tools
 
-#
-# Install Kubernetes tools
-#
 
-  - name: Add Google Kubernetes key
-    apt_key:
-      url: "{{ item }}"
-      state: present
-    with_items:
-      - https://packages.cloud.google.com/apt/doc/apt-key.gpg
-
-  - name: Install Kubernetes repo - ugh for bionic have to use xenial
-    apt_repository:
-      repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
-      state: present
-      update_cache: yes
-
-  - name: Install Kubernetes kubectl cli tool
-    apt:
-      state: present
-      install_recommends: no
-      name: kubectl
-
-#
-# Install Skaffold directly
-#
-
-  - name: Add Skaffold binary
+  #
+  # Install binary tools directly
+  #
+  - name: Add binary tool
     get_url:
-      url: https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
-      dest: /usr/local/bin/skaffold
+      url: "{{ item.url }}"
+      dest: "{{ item.dest }}"
       mode: 0755
+    with_items: "{{ cloud_binary_tools }}"
+    when: item.name in cloud_tools
 
-#
-# Install minikube directly
-# https://minikube.sigs.k8s.io/docs/start/
-#
 
-  - name: Add minikube binary
+  #
+  # Tools from github
+  #
+  - name: Get latest release for each git package in cloud_tools
+    uri:
+      url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
+      method: GET
+      return_content: true
+      status_code: 200
+      body_format: json
+      validate_certs: false
+      force_basic_auth: no
+    register: cloud_git_releases
+    until: cloud_git_releases.status == 200
+    retries: 5
+    with_items: "{{ cloud_git_tools }}"
+    when: item.filename in cloud_tools
+    check_mode: no
+
+  - name: Build list of tools, versions, urls
+    set_fact:
+      cloud_tools_info: "{{ cloud_tools_info | default([]) + [ cloud_tools_template ] }}"
+    with_together:
+      - "{{ cloud_git_releases.results }}"
+      - "{{ cloud_git_tools }}"
+    when: item.1.filename in cloud_tools
+    check_mode: no
+
+  - name: Install tool executables to /usr/local/bin
     get_url:
-      url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-      dest: /usr/local/bin/minikube
+      url: "{{ item.url[0] }}"
+      dest: "/usr/local/bin/{{ item.filename }}"
       mode: 0755
+    with_items: "{{ cloud_tools_info }}"
+    when:
+      - item.type == "exe"
+      - item.filename in cloud_tools
 
+  - name: Download and install archive type tool
+    unarchive:
+      src: "{{ item.url[0] }}"
+      remote_src: yes
+      dest: "/usr/local/bin"
+      creates: "/usr/local/bin/{{ item.filename }}"
+      mode: 0755
+    with_items: "{{ cloud_tools_info }}"
+    when:
+      - item.type == "archive"
+      - item.filename in cloud_tools
+
+  - name: Install deb packages
+    apt:
+      deb: "{{ item.url[0] }}"
+    with_items: "{{ cloud_tools_info }}"
+    when:
+      - item.type == "deb"
+      - item.filename in cloud_tools
+
+
+  #
+  # Install shell completions
+  # Will only work if bash-completion is installed for bash
+  #
+  - name: Check if zsh available
+    stat:
+      path: /usr/bin/zsh
+    register: zsh_installed
+    check_mode: no
+
+  - name: Fetch zsh completion for the tools
+    get_url:
+      url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/zsh/{{ item.completion_zsh }}
+      dest: /usr/share/zsh/vendor-completions/{{ item.completion_zsh }}
+    with_items:
+      - "{{ cloud_git_tools }}"
+    when:
+      - item.completion_zsh != "NONE"
+      - zsh_installed.stat.exists
+      - item.filename in cloud_tools
+
+  - name: Fetch bash completion for the tools
+    get_url:
+      url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion_bash }}
+      dest: /etc/bash_completion.d/{{ item.completion_bash }}
+    with_items:
+      - "{{ cloud_git_tools }}"
+    when:
+      - item.completion_bash != "NONE"
+      - item.filename in cloud_tools
+
+  - name: Create zsh completion for tools that generate configs
+    shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
+    args:
+      creates: "/usr/share/zsh/vendor-completions/_{{ item | basename }}"
+    with_items:
+      - /usr/bin/kubectl
+      - /usr/bin/kubeadm
+      - /usr/local/bin/minikube
+      - /usr/local/bin/eksctl
+      - /usr/local/bin/kind
+      - /usr/local/bin/skaffold
+    when:
+      - zsh_installed.stat.exists
+      - item | basename  in cloud_tools
+
+  - name: Create bash completion for tools that generate configs
+    shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
+    args:
+      creates: "/etc/bash_completion.d/_{{ item | basename }}"
+    with_items:
+      - /usr/bin/kubectl
+      - /usr/bin/kubeadm
+      - /usr/local/bin/minikube
+      - /usr/local/bin/eksctl
+      - /usr/local/bin/kind
+      - /usr/local/bin/skaffold
+    when:
+      - item | basename in cloud_tools
+
+  # bash completion already installed by package
+  - name: Create Azure cli zsh completion
+    file:
+      src: /etc/bash_completion.d/azure-cli
+      dest: /usr/share/zsh/vendor-completions/_azure-cli
+      state: link
+      force: yes
+    when:
+      - zsh_installed.stat.exists
+      - '"azure_cli" in cloud_tools'
+
+  - name: Create AWS cli zsh completion
+    file:
+      src: /usr/local/bin/aws_zsh_completer.sh
+      dest: /usr/share/zsh/vendor-completions/_aws
+      state: link
+      force: yes
+    when:
+      - zsh_installed.stat.exists
+      - '"awscli" in cloud_tools'
+
+  - name: Create AWS cli bash completion
+    file:
+      src: /usr/local/bin/aws_bash_completer
+      dest: /etc/bash_completion.d/_aws
+      state: link
+      force: yes
+    when:
+      - '"awscli" in cloud_tools'
   #
   # block
 

@@ -1,5 +1,0 @@
-# apt-cacher-ng doesn't like going through ssl
-Acquire::https::Proxy::packages.microsoft.com "DIRECT";
-Acquire::https::Proxy::baltocdn.com "DIRECT";
-Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
-Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
