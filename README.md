@@ -23,13 +23,14 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 
 * [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
 * [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
-* [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-* [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+* kubernetes (installs these packages)
+    * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+    * [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
 * [skaffold](https://skaffold.dev/docs/install/)
-* [Helm](https://helm.sh/docs/intro/install/)
+* [helm](https://helm.sh/docs/intro/install/)
 * [docker-machine](https://github.com/docker/machine/releases)
 * [docker-compose](https://github.com/docker/compose/releases)
-* [dive docker layer stats](https://github.com/wagoodman/dive)
+* [dive (docker layer stats)](https://github.com/wagoodman/dive)
 * [AWS awscli (v2)](https://aws.amazon.com/cli/)
 * [AWS gimme-aws-creds](https://github.com/Nike-Inc/gimme-aws-creds)
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
@@ -40,6 +41,6 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 
 Build a list of the tools to install with the following syntax - set the variable **cloud_tools** to the list of desired tools by name above.  The list should be comma-delimited, inside square-brackets.
 ```
-ansible-playbook -K -i hosts cloud_tools.yml -l localhost --extra-vars '{cloud_tools: [ awscli, eksctl, kubectl ] }'
+ansible-playbook -K -i hosts cloud_tools.yml -l localhost --extra-vars '{cloud_tools: [ awscli, eksctl, kubernetes ] }'
 ```
 
