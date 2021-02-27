@@ -1,0 +1,77 @@
+# ansible-cloud_tools
+
+This is a role to install a useful set of tools for dealing with cloud type things.
+
+### Install latest ansible with :
+```
+sudo apt install --no-install-recommends software-properties-common
+sudo add-apt-repository ppa:ansible/ansible
+sudo apt install --no-install-recommends ansible
+```
+
+### Install all tools with playbook.yml
+
+```
+- hosts: all
+  gather_facts: true
+
+  roles:
+    - { role: ansible-cloud_tools, tags: 'cloud' }
+```
+
+Then run playbook with something like
+
+```
+ansible-playbook -K -i hosts playbook.yml -l localhost
+```
+
+### Default list of tools installed
+
+* [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
+* [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
+* kubernetes (installs these packages)
+    * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+    * [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+* [skaffold](https://skaffold.dev/docs/install/)
+* [helm](https://helm.sh/docs/intro/install/)
+* [docker-machine](https://github.com/docker/machine/releases)
+* [docker-compose](https://github.com/docker/compose/releases)
+* [dive (docker layer stats)](https://github.com/wagoodman/dive)
+* [AWS awscli (v2)](https://aws.amazon.com/cli/)
+* [AWS gimme-aws-creds](https://github.com/Nike-Inc/gimme-aws-creds)
+* [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
+* [AWS eksctl](https://github.com/weaveworks/eksctl)
+* [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+### Install subset of tools
+
+Define a `cloud_tools` variable to list all the tools desired in the playbook
+
+```
+- hosts: all
+  gather_facts: true
+
+  vars:
+    cloud_tools:
+      - minikube
+      - kind
+      - kubernetes
+      - skaffold
+
+  roles:
+    - { role: ansible-cloud_tools, tags: 'cloud' }
+```
+
+Then run playbook with something like
+
+```
+ansible-playbook -K -i hosts playbook.yml -l localhost
+```
+
+That will install just the tools listed in the playbook.  Or, you can override it right on the command-line ...
+
+Build a list of the tools to install with the following syntax - set the variable **cloud_tools** to the list of desired tools by name above.  The list should be comma-delimited, inside square-brackets.
+```
+ansible-playbook -K -i hosts playbook.yml -l localhost --extra-vars '{cloud_tools: [ awscli, eksctl, kubernetes ] }'
+```
+
