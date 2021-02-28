@@ -103,14 +103,14 @@
   #
   # Install tools via PPA
   #
-  - name: Add repo key for {{ item.name }}
+  - name: Add repo key for PPA
     apt_key:
       url: "{{ item.key }}"
       state: present
     loop: "{{ cloud_ppa_packages }}"
     when: item.name in cloud_tools
 
-  - name: Install repo for {{ item.name }}
+  - name: Install repo for PPA
     apt_repository:
       repo: "{{ item.repo }}"
       state: present
@@ -119,7 +119,7 @@
     loop: "{{ cloud_ppa_packages }}"
     when: item.name in cloud_tools
 
-  - name: Install {{ item.name }} tool(s) from PPA
+  - name: Install tool(s) from PPA
     apt:
       state: present
       install_recommends: no
