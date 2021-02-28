@@ -8,7 +8,6 @@ trigger:
     - master
   event:
     - push
-    - merge
 
 steps:
   - name: Lint
