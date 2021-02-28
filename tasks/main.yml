@@ -16,6 +16,7 @@
       state: directory
       owner: "{{ ansible_user_id }}"
       group: "{{ ansible_user_id }}"
+      mode: '0644'
     with_items:
       - .aws
       - .hammer
@@ -31,6 +32,7 @@
         Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
         Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
       dest: /etc/apt/apt.conf.d/11cloud_tools
+      mode: '0644'
 
   - name: Install prerequisite tools
     apt:
@@ -62,7 +64,7 @@
     when:
       - packages_via_pip is defined
       - packages_via_pip | length > 0
-      - ansible_check_mode == false
+      - not ansible_check_mode
 
 
   #
