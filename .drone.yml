@@ -12,9 +12,8 @@ trigger:
 
 steps:
   - name: Lint
-    image: geerlingguy/docker-ubuntu2004-ansible
+    image: quay.io/ansible/toolset
     commands:
-      - apt-get update
-      - apt-get install --yes --no-install-recommends yamllint
       - yamllint .
+      - ansible-lint --force-color
 
