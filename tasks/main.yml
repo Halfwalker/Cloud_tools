@@ -36,6 +36,7 @@
     apt:
       state: present
       install_recommends: no
+      update_cache: yes
       name: "{{ cloud_prereq_packages.common }} + {{ cloud_prereq_packages[ansible_distribution_release] }}"
 
 
@@ -91,11 +92,6 @@
       command: /tmp/aws/install
       args:
         creates: /usr/local/bin/aws
-
-    - name: Clean up
-      file:
-        path: /tmp/aws
-        state: absent
     #
     # block
 
@@ -165,7 +161,9 @@
     with_together:
       - "{{ cloud_git_releases.results }}"
       - "{{ cloud_git_tools }}"
-    when: item.1.filename in cloud_tools
+    when:
+      - cloud_git_releases is defined
+      - item.1.filename in cloud_tools
     check_mode: no
 
   - name: Install tool executables to /usr/local/bin
@@ -175,6 +173,7 @@
       mode: 0755
     with_items: "{{ cloud_tools_info }}"
     when:
+      - cloud_tools_info is defined
       - item.type == "exe"
       - item.filename in cloud_tools
 
@@ -187,6 +186,7 @@
       mode: 0755
     with_items: "{{ cloud_tools_info }}"
     when:
+      - cloud_tools_info is defined
       - item.type == "archive"
       - item.filename in cloud_tools
 
@@ -195,6 +195,7 @@
       deb: "{{ item.url[0] }}"
     with_items: "{{ cloud_tools_info }}"
     when:
+      - cloud_tools_info is defined
       - item.type == "deb"
       - item.filename in cloud_tools
 
@@ -243,7 +244,7 @@
       - /usr/local/bin/skaffold
     when:
       - zsh_installed.stat.exists
-      - item | basename  in cloud_tools
+      - item | basename in cloud_tools or item | basename == 'kubectl' or item | basename == 'kubeadm'
 
   - name: Create bash completion for tools that generate configs
     shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
@@ -257,10 +258,10 @@
       - /usr/local/bin/kind
       - /usr/local/bin/skaffold
     when:
-      - item | basename in cloud_tools
+      - item | basename in cloud_tools or item | basename == 'kubectl' or item | basename == 'kubeadm'
 
   # bash completion already installed by package
-  - name: Create Azure cli zsh completion
+  - name: Create Azure cli bash completion
     file:
       src: /etc/bash_completion.d/azure-cli
       dest: /usr/share/zsh/vendor-completions/_azure-cli
@@ -272,7 +273,7 @@
 
   - name: Create AWS cli zsh completion
     file:
-      src: /usr/local/bin/aws_zsh_completer.sh
+      src: /usr/local/bin/aws_completer
       dest: /usr/share/zsh/vendor-completions/_aws
       state: link
       force: yes
@@ -282,7 +283,7 @@
 
   - name: Create AWS cli bash completion
     file:
-      src: /usr/local/bin/aws_bash_completer
+      src: /usr/local/bin/aws_completer
       dest: /etc/bash_completion.d/_aws
       state: link
       force: yes
