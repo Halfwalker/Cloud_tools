@@ -12,7 +12,7 @@ trigger:
 
 steps:
   - name: Lint
-    image: geerlingguy/docker-ubuntu2004-ansible:testing
+    image: geerlingguy/docker-ubuntu2004-ansible
     commands:
       - "find . -maxdepth 1 -name '*.yml' | sort | grep -v '.drone.yml' | xargs ansible-playbook --syntax-check --list-tasks"
       - "find . -maxdepth 1 -name '*.yml' | sort | grep -v '.drone.yml' | xargs ansible-lint"
