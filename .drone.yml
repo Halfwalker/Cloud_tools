@@ -3,6 +3,13 @@ kind: pipeline
 type: docker
 name: default
 
+trigger:
+  branches:
+    - master
+  event:
+    - push
+    - merge
+
 steps:
   - name: Lint
     image: geerlingguy/docker-ubuntu2004-ansible:testing
