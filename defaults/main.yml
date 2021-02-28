@@ -1,5 +1,8 @@
 ---
 
+# Default to NOT force-update the config files
+force_update: false
+
 # Default list of tools
 cloud_default_tools:
   - minikube
@@ -10,6 +13,7 @@ cloud_default_tools:
   - docker-machine
   - docker-compose
   - dive
+  - dlayer
   - awscli
   - gimme-aws-creds
   - ecs-cli
@@ -28,6 +32,7 @@ cloud_prereq_packages:
     - python{{ ansible_python.version.major }}-setuptools
     - python{{ ansible_python.version.major }}-pip
     - python{{ ansible_python.version.major }}-jmespath
+    - unzip
   focal: []
   bionic:
   - python-jmespath
@@ -45,13 +50,13 @@ cloud_aws_configs:
       [default]
       region = us-east-1
     dest: config
-    mode: 0644
+    mode: '0644'
   - src: |
       [default]
       aws_access_key_id =
       aws_secret_access_key =
     dest: credentials
-    mode: 0600
+    mode: '0600'
 
 # Packages available via PPA for Ubuntu
 cloud_ppa_packages:
@@ -73,8 +78,9 @@ cloud_ppa_packages:
     key: https://baltocdn.com/helm/signing.asc
     packages:
       - helm
+  # Ugly - no specific focal version yet, so use bionic
   - name: hammer
-    repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+    repo: "deb http://deb.theforeman.org/ bionic nightly"
     key: https://deb.theforeman.org/foreman.asc
     packages:
       - ruby-hammer-cli
