@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include ansible-cloud_tools"
+      include_role:
+        name: "ansible-cloud_tools"

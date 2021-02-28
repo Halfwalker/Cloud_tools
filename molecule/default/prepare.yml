@@ -1,0 +1,14 @@
+---
+
+- name: Prepare
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    - name: Install ZSH
+      apt:
+        state: present
+        update_cache: yes
+        name:
+          - zsh
