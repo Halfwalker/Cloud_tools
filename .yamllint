@@ -20,7 +20,8 @@ rules:
   document-start: disable
   empty-lines:
     max: 3
-    level: error
+    max-end: 2
+    level: warning
   hyphens:
     level: error
   indentation: disable
