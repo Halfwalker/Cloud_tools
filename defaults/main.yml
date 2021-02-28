@@ -20,6 +20,7 @@ cloud_default_tools:
   - eksctl
   - azure-cli
   - hammer
+  - drone
 
 # This variable can be overridden on the cmdline to select which tools to install
 cloud_tools: "{{ cloud_default_tools }}"
@@ -128,6 +129,13 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'Linux_amd64.tar.gz')].browser_download_url"
+  - repo: drone/drone-cli
+    filename: drone
+    type: archive
+    completion_zsh: NONE
+    completion_bash: NONE
+    jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.tar.gz')].browser_download_url"
+
 
 # Packages that are direct downloads of the binary
 cloud_binary_tools:
