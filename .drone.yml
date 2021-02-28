@@ -14,7 +14,7 @@ steps:
   - name: Lint
     image: geerlingguy/docker-ubuntu2004-ansible
     commands:
-      - apt update
-      - apt install --no-install-recommends yamllint
+      - apt-get update
+      - apt-get install --yes --no-install-recommends yamllint
       - yamllint .
 
