@@ -1,6 +1,7 @@
 # ansible-cloud_tools
 
-[![Build Status](http://bondi.local:3001/api/badges/Halfwalker/Cloud_tools/status.svg)](http://bondi.local:3001/Halfwalker/Cloud_tools)
+[![Build Status]([![Build Status](http://bondi.local:3001/api/badges/Halfwalker/ansible-cloud_tools/status.svg)](http://bondi.local:3001/Halfwalker/ansible-cloud_tools)
+)
 
 This is a role to install a useful set of tools for dealing with cloud type things.
 
