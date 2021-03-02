@@ -9,10 +9,29 @@ trigger:
   event:
     - push
 
+# Need to define workspace as role name so molecule can find it
+workspace:
+  path: /drone/ansible-cloud_tools
+
 steps:
   - name: Lint
     image: quay.io/ansible/toolset
     commands:
       - yamllint .
       - ansible-lint --force-color
+
+  - name: Molecule
+    image: quay.io/ansible/toolset
+    privileged: true
+    commands:
+      - molecule --version
+      - molecule test
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
 
