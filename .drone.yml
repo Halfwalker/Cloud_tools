@@ -1,17 +1,60 @@
 ---
 kind: pipeline
 type: docker
-name: default
-
-trigger:
-  branches:
-    - master
-  event:
-    - push
+name: ubuntu2004
 
 # Need to define workspace as role name so molecule can find it
 workspace:
   path: /drone/ansible-cloud_tools
+
+# Have to define env variables in EACH step, not as overall pipeline
+# setup :(  Due to drone-cli using old code
+# https://discourse.drone.io/t/global-environment-settings-do-not-work-for-local-drone-exec/8786
+#
+# environment:
+#   MOLECULE_DISTRO: ubuntu2004
+
+steps:
+  - name: Lint
+    image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu2004
+    commands:
+      - yamllint .
+      - ansible-lint --force-color
+
+  - name: Molecule
+    image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu2004
+    privileged: true
+    commands:
+      - molecule --version
+      - molecule test
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
+---
+kind: pipeline
+type: docker
+name: ubuntu1804
+
+# Need to define workspace as role name so molecule can find it
+workspace:
+  path: /drone/ansible-cloud_tools
+
+# Have to define env variables in EACH step, not as overall pipeline
+# setup :(  Due to drone-cli using old code
+# https://discourse.drone.io/t/global-environment-settings-do-not-work-for-local-drone-exec/8786
+#
+# environment:
+#   MOLECULE_DISTRO: ubuntu1804
 
 steps:
   - name: Lint
@@ -22,6 +65,8 @@ steps:
 
   - name: Molecule
     image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu1804
     privileged: true
     commands:
       - molecule --version
