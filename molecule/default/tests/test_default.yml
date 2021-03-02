@@ -1,6 +1,26 @@
 # Molecule managed
-
 ---
+
+package:
+  kubeadm:
+    installed: true
+    skip: false
+  kubectl:
+    installed: true
+    skip: false
+  azure-cli:
+    installed: true
+    skip: false
+  helm:
+    installed: true
+    skip: false
+  ruby-hammer-cli:
+    installed: true
+    skip: false
+  ruby-hammer-cli-foreman:
+    installed: true
+    skip: false
+
 file:
   /usr/local/bin/minikube:
     exists: true
@@ -34,3 +54,30 @@ file:
     exists: true
   /usr/bin/hammer:
     exists: true
+
+  /etc/bash_completion.d/_kubectl:
+    exists: true
+  /etc/bash_completion.d/_kubeadm:
+    exists: true
+  /etc/bash_completion.d/_minikube:
+    exists: true
+  /etc/bash_completion.d/_eksctl:
+    exists: true
+  /etc/bash_completion.d/_kind:
+    exists: true
+  /etc/bash_completion.d/_skaffold:
+    exists: true
+
+  /usr/share/zsh/vendor-completions/_kubectl:
+    exists: true
+  /usr/share/zsh/vendor-completions/_kubeadm:
+    exists: true
+  /usr/share/zsh/vendor-completions/_minikube:
+    exists: true
+  /usr/share/zsh/vendor-completions/_eksctl:
+    exists: true
+  /usr/share/zsh/vendor-completions/_kind:
+    exists: true
+  /usr/share/zsh/vendor-completions/_skaffold:
+    exists: true
+
