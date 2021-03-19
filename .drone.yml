@@ -17,6 +17,7 @@ workspace:
 steps:
   - name: Lint
     image: quay.io/ansible/toolset
+    pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2004
     commands:
@@ -59,6 +60,7 @@ workspace:
 steps:
   - name: Lint
     image: quay.io/ansible/toolset
+    pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
