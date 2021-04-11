@@ -3,18 +3,50 @@
   hosts: all
   become: true
   vars:
-    goss_version: v0.3.13
+    # goss_version: v0.3.13
     goss_arch: amd64
     goss_bin: /usr/local/bin/goss
-    goss_sha256sum: eb3522ff9682736ff61e2ad114de227de98debcf8a03ca66fcda3917577313e0.
+    # goss_sha256sum: eb3522ff9682736ff61e2ad114de227de98debcf8a03ca66fcda3917577313e0.
     goss_test_directory: /tmp/molecule/goss
     goss_format: documentation
+    goss_vars: "{{ goss_test_directory }}/vars"
+    copy_defaults_vars: false
+
   tasks:
+
+    # https://github.com/ansible-community/molecule-goss/issues/14
+
+    - name: Get latest release for goss
+      uri:
+        url: "https://api.github.com/repos/aelsabbahy/goss/releases/latest"
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+        validate_certs: false
+        user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+        password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+      register: _latest_release
+      until: _latest_release.status == 200
+      retries: 5
+
+    - name: "Set goss_version to {{ _latest_release.json.tag_name[1:] }}"
+      set_fact:
+        goss_version: "{{ _latest_release.json.tag_name[1:] }}"
+      when: _latest_release is defined
+
+    # Can do some magic here to handle multiple architectures
+    - name: Get checksum for amd64
+      set_fact:
+        goss_sha256sum: "{{ item.split(' ')[0] }}"
+      with_items:
+        - "{{ lookup('url', 'https://github.com/aelsabbahy/goss/releases/download/v' + goss_version + '/goss-linux-amd64.sha256', wantlist=True) | list }}"
+
     - name: Download and install Goss
       get_url:
-        url: "https://github.com/aelsabbahy/goss/releases/download/{{ goss_version }}/goss-linux-{{ goss_arch }}"
+        url: "https://github.com/aelsabbahy/goss/releases/download/v{{ goss_version }}/goss-linux-{{ goss_arch }}"
         dest: "{{ goss_bin }}"
-        sha256sum: "{{ goss_sha256sum }}"
+        checksum: "sha256:{{ goss_sha256sum }}"
         mode: 0755
 
     - name: Create Molecule directory for test files  # noqa 208
@@ -41,6 +73,13 @@
         msg: "{{ test_files.files }}"
         verbosity: 3
 
+    - name: Copy defaults vars to goss vars
+      copy:
+        src: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+        dest: "{{ goss_vars }}"
+        mode: 0644
+      when: copy_defaults_vars
+
     - name: Copy Goss tests to remote  # noqa 208
       copy:
         src: "{{ item.path }}"
@@ -53,7 +92,13 @@
       register: test_files
 
     - name: Execute Goss tests
-      command: "{{ goss_bin }} -g {{ item }} validate --format {{ goss_format }}"  # noqa 301
+      # command: "{{ goss_bin }} -g {{ item }} validate --format {{ goss_format }}"  # noqa 301
+      command:
+        "{{ goss_bin }}
+         {% if copy_defaults_vars %}
+         --vars {{ goss_vars }}
+         {% endif %}
+         -g {{ item }} validate --format {{ goss_format }}"
       register: test_results
       with_items: "{{ test_files.stdout_lines }}"
       failed_when: false
