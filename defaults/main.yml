@@ -79,10 +79,9 @@ cloud_ppa_packages:
     key: https://baltocdn.com/helm/signing.asc
     packages:
       - helm
-  # Ugly - no specific focal version yet, so use bionic
   - name: hammer
-    repo: "deb http://deb.theforeman.org/ bionic nightly"
-    key: https://deb.theforeman.org/foreman.asc
+    repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+    key: https://deb.theforeman.org/pubkey.gpg
     packages:
       - ruby-hammer-cli
       - ruby-hammer-cli-foreman
