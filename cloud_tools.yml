@@ -445,7 +445,7 @@
           force: yes
         when:
           - zsh_installed.stat.exists
-          - '"azure_cli" in cloud_tools'
+          - '"azure-cli" in cloud_tools'
 
       - name: Create AWS cli zsh completion
         file:
