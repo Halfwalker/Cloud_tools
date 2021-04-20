@@ -30,6 +30,7 @@
       - docker-machine
       - docker-compose
       - dive
+      - dlayer
       - awscli
       - gimme-aws-creds
       - ecs-cli
