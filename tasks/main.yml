@@ -267,7 +267,7 @@
         (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
 
   # bash completion already installed by package
-  - name: Create Azure cli bash completion
+  - name: Create Azure cli zsh completion
     file:
       src: /etc/bash_completion.d/azure-cli
       dest: /usr/share/zsh/vendor-completions/_azure-cli
