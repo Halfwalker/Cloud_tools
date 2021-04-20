@@ -420,7 +420,9 @@
           - /usr/local/bin/skaffold
         when:
           - zsh_installed.stat.exists
-          - item | basename  in cloud_tools
+          - item | basename in cloud_tools or
+            (item | basename == 'kubectl' and 'kubernetes' in cloud_tools) or
+            (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
 
       - name: Create bash completion for tools that generate configs
         shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
@@ -434,7 +436,9 @@
           - /usr/local/bin/kind
           - /usr/local/bin/skaffold
         when:
-          - item | basename in cloud_tools
+          - item | basename in cloud_tools or
+            (item | basename == 'kubectl' and 'kubernetes' in cloud_tools) or
+            (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
 
       # bash completion already installed by package
       - name: Create Azure cli zsh completion
@@ -449,7 +453,7 @@
 
       - name: Create AWS cli zsh completion
         file:
-          src: /usr/local/bin/aws_zsh_completer.sh
+          src: /usr/local/bin/aws_completer.sh
           dest: /usr/share/zsh/vendor-completions/_aws
           state: link
           force: yes
@@ -459,7 +463,7 @@
 
       - name: Create AWS cli bash completion
         file:
-          src: /usr/local/bin/aws_bash_completer
+          src: /usr/local/bin/aws_completer
           dest: /etc/bash_completion.d/_aws
           state: link
           force: yes
