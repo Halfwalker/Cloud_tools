@@ -44,6 +44,8 @@ file:
     exists: true
   /usr/local/bin/dlayer:
     exists: true
+  /usr/local/bin/drone:
+    exists: true
   /usr/local/bin/gimme-aws-creds:
     exists: true
   /usr/local/bin/ecs-cli:
