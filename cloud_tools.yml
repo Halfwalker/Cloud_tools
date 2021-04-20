@@ -49,6 +49,7 @@
         - python{{ ansible_python.version.major }}-setuptools
         - python{{ ansible_python.version.major }}-pip
         - python{{ ansible_python.version.major }}-jmespath
+        - unzip
       focal: []
       bionic:
       - python-jmespath
