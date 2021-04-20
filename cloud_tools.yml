@@ -67,13 +67,13 @@
           [default]
           region = us-east-1
         dest: config
-        mode: 0644
+        mode: '0644'
       - src: |
           [default]
           aws_access_key_id =
           aws_secret_access_key =
         dest: credentials
-        mode: 0600
+        mode: '0600'
 
     # Packages available via PPA for Ubuntu
     cloud_ppa_packages:
