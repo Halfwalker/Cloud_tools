@@ -1,0 +1,83 @@
+# Molecule managed
+---
+
+package:
+  kubeadm:
+    installed: true
+    skip: false
+  kubectl:
+    installed: true
+    skip: false
+  azure-cli:
+    installed: true
+    skip: false
+  helm:
+    installed: true
+    skip: false
+  ruby-hammer-cli:
+    installed: true
+    skip: false
+  ruby-hammer-cli-foreman:
+    installed: true
+    skip: false
+
+file:
+  /usr/local/bin/minikube:
+    exists: true
+  /usr/local/bin/kind:
+    exists: true
+  /usr/bin/kubeadm:
+    exists: true
+  /usr/bin/kubelet:
+    exists: true
+  /usr/bin/kubectl:
+    exists: true
+  /usr/local/bin/skaffold:
+    exists: true
+  /usr/sbin/helm:
+    exists: true
+  /usr/local/bin/docker-machine:
+    exists: true
+  /usr/local/bin/docker-compose:
+    exists: true
+  /usr/local/bin/dive:
+    exists: true
+  /usr/local/bin/dlayer:
+    exists: true
+  /usr/local/bin/gimme-aws-creds:
+    exists: true
+  /usr/local/bin/ecs-cli:
+    exists: true
+  /usr/local/bin/eksctl:
+    exists: true
+  /usr/bin/az:
+    exists: true
+  /usr/bin/hammer:
+    exists: true
+
+  /etc/bash_completion.d/_kubectl:
+    exists: true
+  /etc/bash_completion.d/_kubeadm:
+    exists: true
+  /etc/bash_completion.d/_minikube:
+    exists: true
+  /etc/bash_completion.d/_eksctl:
+    exists: true
+  /etc/bash_completion.d/_kind:
+    exists: true
+  /etc/bash_completion.d/_skaffold:
+    exists: true
+
+  /usr/share/zsh/vendor-completions/_kubectl:
+    exists: true
+  /usr/share/zsh/vendor-completions/_kubeadm:
+    exists: true
+  /usr/share/zsh/vendor-completions/_minikube:
+    exists: true
+  /usr/share/zsh/vendor-completions/_eksctl:
+    exists: true
+  /usr/share/zsh/vendor-completions/_kind:
+    exists: true
+  /usr/share/zsh/vendor-completions/_skaffold:
+    exists: true
+

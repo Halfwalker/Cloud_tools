@@ -1,0 +1,68 @@
+---
+kind: pipeline
+type: docker
+name: ubuntu2004
+
+workspace:
+  path: /drone/Cloud_tools
+
+steps:
+  - name: Lint
+    image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu2004
+    commands:
+      - yamllint .
+      - ansible-lint --force-color
+
+  - name: Molecule
+    image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu2004
+    privileged: true
+    commands:
+      - molecule --version
+      - molecule test
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
+---
+kind: pipeline
+type: docker
+name: ubuntu1804
+
+workspace:
+  path: /drone/Cloud_tools
+
+steps:
+  - name: Lint
+    image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu1804
+    commands:
+      - yamllint .
+      - ansible-lint --force-color
+
+  - name: Molecule
+    image: quay.io/ansible/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu1804
+    privileged: true
+    commands:
+      - molecule --version
+      - molecule test
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
