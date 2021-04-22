@@ -273,11 +273,6 @@
           args:
             creates: /usr/local/bin/aws
 
-        - name: Clean up
-          file:
-            path: /tmp/aws
-            state: absent
-
 
       #
       # Install tools via PPA
