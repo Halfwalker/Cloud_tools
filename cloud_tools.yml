@@ -173,7 +173,8 @@
       url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
-    - pause:
+    - name: Show what tools are to be installed
+      pause:
         prompt: |
           #---------------------------
           |   Installing these tools
@@ -201,6 +202,7 @@
             Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
             Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
           dest: /etc/apt/apt.conf.d/11cloud_tools
+          mode: '0644'
 
       - name: Install prerequisite tools
         apt:
