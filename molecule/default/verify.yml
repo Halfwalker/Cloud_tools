@@ -34,7 +34,8 @@
         goss_version: "{{ _latest_release.json.tag_name[1:] }}"
       when: _latest_release is defined
 
-    - debug:
+    - name: debug
+      debug:
         var=goss_version
 
     # Can do some magic here to handle multiple architectures
