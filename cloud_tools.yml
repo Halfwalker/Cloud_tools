@@ -49,6 +49,11 @@
         - python{{ ansible_python.version.major }}-setuptools
         - python{{ ansible_python.version.major }}-pip
         - python{{ ansible_python.version.major }}-jmespath
+        - python{{ ansible_python.version.major }}-secretstorage
+        - python{{ ansible_python.version.major }}-keyring
+        - python{{ ansible_python.version.major }}-keyrings.alt
+        - python{{ ansible_python.version.major }}-oath
+        - python{{ ansible_python.version.major }}-wheel
         - unzip
       focal: []
       bionic:
