@@ -52,7 +52,7 @@
         - python{{ ansible_python.version.major }}-secretstorage
         - python{{ ansible_python.version.major }}-keyring
         - python{{ ansible_python.version.major }}-keyrings.alt
-        - python{{ ansible_python.version.major }}-oath
+        - python{{ ansible_python.version.major }}-oauth
         - python{{ ansible_python.version.major }}-wheel
         - unzip
       focal: []
