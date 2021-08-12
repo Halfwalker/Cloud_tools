@@ -456,25 +456,29 @@
           - zsh_installed.stat.exists
           - '"azure-cli" in cloud_tools'
 
-      - name: Create AWS cli zsh completion
-        file:
-          src: /usr/local/bin/aws_completer.sh
-          dest: /usr/share/zsh/vendor-completions/_aws
-          state: link
-          force: yes
-        when:
-          - zsh_installed.stat.exists
-          - '"awscli" in cloud_tools'
-
       - name: Create AWS cli bash completion
-        file:
-          src: /usr/local/bin/aws_completer
+        copy:
           dest: /etc/bash_completion.d/_aws
-          state: link
           force: yes
+          mode: 0644
+          content: |
+            complete -C '/usr/local/bin/aws_completer' aws
         when:
           - '"awscli" in cloud_tools'
 
-      #
-      # block
+    #
+    # block
+
+    - name: Create AWS cli zsh completion
+      blockinfile:
+        dest: "/{{ ansible_user_dir }}/.zshrc"
+        insertafter: EOF
+        marker: "#----- {mark} Ansible managed for aws command completion"
+        block: |
+          autoload bashcompinit && bashcompinit
+          autoload -Uz compinit && compinit
+          complete -C '/usr/local/bin/aws_completer' aws
+      when:
+        - zsh_installed.stat.exists
+        - '"awscli" in cloud_tools'
 
