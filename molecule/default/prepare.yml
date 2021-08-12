@@ -12,3 +12,11 @@
         update_cache: yes
         name:
           - zsh
+
+    - name: Create blank /root/.zshrc
+      file:
+        path: "/root/.zshrc"
+        owner: root
+        group: root
+        mode: 0644
+        state: touch
