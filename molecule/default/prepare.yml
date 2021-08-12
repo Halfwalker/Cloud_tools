@@ -12,3 +12,11 @@
         update_cache: yes
         name:
           - zsh
+
+    - name: Create blank /root/.zshrc
+      file:
+        path: "{{ ansible_user_dir }}/.zshrc"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+        mode: 0644
+        state: touch
