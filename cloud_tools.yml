@@ -181,12 +181,15 @@
     - name: Show what tools are to be installed
       pause:
         prompt: |
-          #---------------------------
-          |   Installing these tools
+          #--------------------------------------------
+          |  Installing these tools
+          |  Hit <ENTER> to continue or ctrl-c to abort
+          |
           {% for tool in cloud_tools %}
           |     - {{ tool }}
           {% endfor %}
-          #---------------------------
+          |
+          #--------------------------------------------
 
 
     - become: yes
@@ -282,14 +285,14 @@
       #
       # Install tools via PPA
       #
-      - name: Add repo key for {{ item.name }}
+      - name: Add repo keys for PPA repos
         apt_key:
           url: "{{ item.key }}"
           state: present
         loop: "{{ cloud_ppa_packages }}"
         when: item.name in cloud_tools
 
-      - name: Install repo for {{ item.name }}
+      - name: Install repo
         apt_repository:
           repo: "{{ item.repo }}"
           state: present
@@ -298,7 +301,7 @@
         loop: "{{ cloud_ppa_packages }}"
         when: item.name in cloud_tools
 
-      - name: Install {{ item.name }} tool(s) from PPA
+      - name: Install tool(s) from PPA
         apt:
           state: present
           install_recommends: no
