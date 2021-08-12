@@ -5,8 +5,8 @@ This is a simple playbook to install a useful set of tools for dealing with clou
 ### Install latest ansible with :
 ```
 sudo apt install --no-install-recommends software-properties-common
-sudo add-apt-repository ppa:ansible/ansible
-sudo apt install --no-install-recommends ansible
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install -qq --yes --no-install-recommends ansible git
 ```
 
 ### Create a hosts file with the following contents
