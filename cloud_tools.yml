@@ -252,7 +252,7 @@
         #
         - name: Ensure config dirs are there
           file:
-            path: "/home/{{ ansible_user_id }}/{{ item }}"
+            path: "{{ ansible_user_dir }}/{{ item }}"
             state: directory
             owner: "{{ ansible_user_id }}"
             group: "{{ ansible_user_id }}"
@@ -262,7 +262,7 @@
         - name: Copy .aws configuration files if not there
           copy:
             content: "{{ item.src }}"
-            dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
+            dest: "{{ ansible_user_dir }}/.aws/{{ item.dest }}"
             force: no
             owner: "{{ ansible_user_id }}"
             group: "{{ ansible_user_id }}"
@@ -471,7 +471,7 @@
 
     - name: Create AWS cli zsh completion
       blockinfile:
-        dest: "/{{ ansible_user_dir }}/.zshrc"
+        dest: "{{ ansible_user_dir }}/.zshrc"
         insertafter: EOF
         marker: "#----- {mark} Ansible managed for aws command completion"
         block: |
