@@ -101,7 +101,11 @@
         packages:
           - helm
       - name: hammer
-        repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+        # NOTE: ensure using version 2.x, not 3.0 which is missing several subcommands
+        #       sc-param, puppet-class, puppet-environment
+        #       Use "nightly" instead of 2.5 below to get latest
+        # repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+        repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} 2.5"
         key: https://deb.theforeman.org/foreman.asc
         packages:
           - ruby-hammer-cli
