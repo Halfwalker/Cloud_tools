@@ -21,6 +21,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 
 ### Default list of tools installed
 
+* [vault](https://www.vaultproject.io/downloads)
 * [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
 * [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
 * kubernetes (installs these packages)
