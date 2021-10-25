@@ -30,6 +30,7 @@ cloud_prereq_packages:
   common:
     - bash-completion
     - gpg-agent
+    - ipmitool
     - python{{ ansible_python.version.major }}-setuptools
     - python{{ ansible_python.version.major }}-pip
     - python{{ ansible_python.version.major }}-jmespath
@@ -66,6 +67,11 @@ cloud_aws_configs:
 
 # Packages available via PPA for Ubuntu
 cloud_ppa_packages:
+  - name: vault
+    repo: "https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    key: https://apt.releases.hashicorp.com/gpg
+    packages:
+      - vault
   - name: kubernetes
     # Ugly - they only have a xenial version for xenial/bionic
     # TODO - handle all distros cleanly
