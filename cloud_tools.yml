@@ -343,7 +343,9 @@
           status_code: 200
           body_format: json
           validate_certs: false
-          force_basic_auth: no
+          user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+          password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+          force_basic_auth: "{% if lookup('env', 'GH_USER') %}yes{% else %}no{% endif%}"
         register: cloud_git_releases
         until: cloud_git_releases.status == 200
         retries: 5

@@ -19,6 +19,10 @@ steps:
     image: quay.io/ansible/toolset
     environment:
       MOLECULE_DISTRO: ubuntu2004
+      GH_USER:
+        from_secret: GH_USER
+      GH_TOKEN:
+        from_secret: GH_TOKEN
     privileged: true
     commands:
       - molecule --version

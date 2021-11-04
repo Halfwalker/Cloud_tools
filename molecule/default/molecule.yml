@@ -16,6 +16,9 @@ platforms:
 
 provisioner:
   name: ansible
+  env:
+    GH_USER: ${GH_USER}
+    GH_TOKEN: ${GH_TOKEN}
 
 verifier:
   name: goss
