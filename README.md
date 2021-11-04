@@ -14,6 +14,14 @@ sudo apt install -qq --yes --no-install-recommends ansible git
 localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
 ```
 
+### Optional : Set a github user/token var to avoid rate-limiting
+
+Github may sometimes rate-limit non-authenticated access, which can cause the playbook to fail.  If you don't already have one, you can [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for github.  Then set the **GH_USER** and **GH_TOKEN** environment variables as follows
+```
+export GH_USER=my_github_username
+export GH_TOKEN=3739blahblah873298573248597325
+```
+
 ### Install all tools with
 ```
 ansible-playbook -K -i hosts cloud_tools.yml -l localhost
