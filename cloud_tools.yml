@@ -139,7 +139,7 @@
         type: exe
         completion_zsh: _docker-compose
         completion_bash: docker-compose
-        jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
+        jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
       # dive - nice docker image analysis tool
       - repo: wagoodman/dive
         filename: dive
