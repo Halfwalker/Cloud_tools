@@ -20,6 +20,10 @@ steps:
     pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2004
+      GH_USER:
+        from_secret: GH_USER
+      GH_TOKEN:
+        from_secret: GH_TOKEN
     commands:
       - yamllint .
       - ansible-lint --force-color

@@ -149,7 +149,9 @@
       status_code: 200
       body_format: json
       validate_certs: false
-      force_basic_auth: no
+      user: "{{ vault_github_auth.name | default(omit) }}"
+      password: "{{ vault_github_auth.token| default(omit) }}"
+      force_basic_auth: "{% if vault_github_auth is defined %}yes{% else %}no{% endif%}"
     register: cloud_git_releases
     until: cloud_git_releases.status == 200
     retries: 5

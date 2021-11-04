@@ -11,6 +11,16 @@ sudo add-apt-repository ppa:ansible/ansible
 sudo apt install --no-install-recommends ansible
 ```
 
+### Optional : Set a github user/token var to avoid rate-limiting
+
+Github may sometimes rate-limit non-authenticated access, which can cause the playbook to fail.  If you don't already have one, you can [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for github.  Then set the **vault_github_auth** variable in your ansible vault as follows `ansible-vault edit group_vars/all/vault`
+```
+# github access tokens
+vault_github_auth:
+  name: my_github_username
+  token: 3457blahblah34985735987blahblah5908734
+```
+
 ### Install all tools with playbook.yml
 
 ```
