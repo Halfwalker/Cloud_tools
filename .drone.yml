@@ -49,10 +49,6 @@ steps:
     image: quay.io/ansible/toolset
     environment:
       MOLECULE_DISTRO: ubuntu1804
-      GH_USER:
-        from_secret: GH_USER
-      GH_TOKEN:
-        from_secret: GH_TOKEN
     commands:
       - yamllint .
       - ansible-lint --force-color
@@ -61,6 +57,10 @@ steps:
     image: quay.io/ansible/toolset
     environment:
       MOLECULE_DISTRO: ubuntu1804
+      GH_USER:
+        from_secret: GH_USER
+      GH_TOKEN:
+        from_secret: GH_TOKEN
     privileged: true
     commands:
       - molecule --version

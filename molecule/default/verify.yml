@@ -25,6 +25,7 @@
         validate_certs: false
         user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
         password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+        force_basic_auth: "{% if lookup('env', 'GH_USER') %}yes{% else %}no{% endif%}"
       register: _latest_release
       until: _latest_release.status == 200
       retries: 5
