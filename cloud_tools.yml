@@ -37,6 +37,7 @@
       - eksctl
       - azure-cli
       - hammer
+      - vault
 
     # This variable can be overridden on the cmdline to select which tools to install
     cloud_tools: "{{ cloud_default_tools }}"
