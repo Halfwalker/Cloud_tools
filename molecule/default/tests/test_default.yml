@@ -20,8 +20,13 @@ package:
   ruby-hammer-cli-foreman:
     installed: true
     skip: false
+  vault:
+    installed: true
+    skip: false
 
 file:
+  /usr/bin/vault:
+    exists: true
   /usr/local/bin/minikube:
     exists: true
   /usr/local/bin/kind:
