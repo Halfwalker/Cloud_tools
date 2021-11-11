@@ -69,7 +69,7 @@ cloud_aws_configs:
 # Packages available via PPA for Ubuntu
 cloud_ppa_packages:
   - name: vault
-    repo: "https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
     key: https://apt.releases.hashicorp.com/gpg
     packages:
       - vault
