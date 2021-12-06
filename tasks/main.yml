@@ -21,6 +21,14 @@
       - .aws
       - .hammer
 
+  - name: Ensure bash_completion.d dir is there
+    file:
+      path: /etc/bash_completion.d
+      state: directory
+      owner: root
+      group: root
+      mode: '0755'
+
   # https repos won't go through apt-cacher, so bypass them
   # NOTE: This has url patterns matching https repos from below
   - name: Copy apt config to bypass any apt-cacher-ng or other proxy
