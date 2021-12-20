@@ -1,0 +1,28 @@
+---
+
+image: quay.io/ansible/toolset
+services:
+  - docker:dind
+
+stages:
+  - test
+
+before_script:
+  - docker -v
+  - python -V
+  - ansible --version
+  - molecule --version
+
+role-common:
+  stage: test
+  tags:
+    - docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    PY_COLORS: 1
+    MOLECULE_DISTRO: ubuntu2004
+    ROLE_PATH: /builds/Cloud_tools
+  script:
+    - yamllint .
+    - ansible-lint --force-color
+
