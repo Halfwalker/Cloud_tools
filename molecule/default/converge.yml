@@ -1,3 +1,4 @@
 ---
 
-- import_playbook: /drone/Cloud_tools/cloud_tools.yml
+# ROLE_PATH must be set in molecule.yml as env variable
+- import_playbook: "{{ lookup('env', 'ROLE_PATH') }}/cloud_tools.yml"
