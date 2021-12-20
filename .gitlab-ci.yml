@@ -12,6 +12,7 @@ before_script:
   - python -V
   - ansible --version
   - molecule --version
+  - ls -la
 
 role-common:
   stage: test
@@ -23,6 +24,7 @@ role-common:
     MOLECULE_DISTRO: ubuntu2004
     ROLE_PATH: /builds/Cloud_tools
   script:
+    - env
     - ls -la
     - cd builds
     - yamllint .
