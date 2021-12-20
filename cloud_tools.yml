@@ -189,8 +189,10 @@
       url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
+    # Need a timeout to allow molecule testing to continue during CI/CD
     - name: Show what tools are to be installed
       pause:
+        seconds: 10
         prompt: |
           #--------------------------------------------
           |  Installing these tools
@@ -228,6 +230,14 @@
           state: present
           install_recommends: no
           name: "{{ cloud_prereq_packages.common }} + {{ cloud_prereq_packages[ansible_distribution_release] }}"
+
+      - name: Ensure bash_completion.d dir is there
+        file:
+          path: /etc/bash_completion.d
+          state: directory
+          owner: root
+          group: root
+          mode: '0755'
 
 
       #
