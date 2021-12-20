@@ -23,6 +23,8 @@ role-common:
     MOLECULE_DISTRO: ubuntu2004
     ROLE_PATH: /builds/Cloud_tools
   script:
+    - ls -la
+    - cd builds
     - yamllint .
     - ansible-lint --force-color
 
