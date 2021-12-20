@@ -16,6 +16,10 @@ platforms:
 
 provisioner:
   name: ansible
+  options:
+    # Some tasks we don't need/want to run again for idempotence testing
+    # https://univers-libre.net/posts/ansible-molecule.html
+    skip-tags: molecule-idempotence-notest
   env:
     GH_USER: ${GH_USER}
     GH_TOKEN: ${GH_TOKEN}
