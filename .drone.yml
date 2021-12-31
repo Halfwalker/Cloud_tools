@@ -7,6 +7,20 @@ workspace:
   path: /drone/Cloud_tools
 
 steps:
+  # Skip the pipeline if only changes to README.md or non-drone control files
+  - name: Skip
+    image: quay.io/ansible/toolset
+    commands:
+      # Grab the incoming commit info to see what changed
+      - test $DRONE_BUILD_EVENT = pull_request
+          && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
+          || DIFF_STRING=${DRONE_COMMIT_SHA}~
+      - echo "DIFF_STRING test is $DIFF_STRING"
+      # Show the changed files
+      - git --no-pager diff --name-only $DIFF_STRING
+      # exit 78 to exit cleanly if changes are not in the main files (ignore README etc)
+      - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
+
   - name: Lint
     image: quay.io/ansible/toolset
     environment:
@@ -50,6 +64,17 @@ workspace:
   path: /drone/Cloud_tools
 
 steps:
+  # Skip the pipeline if only changes to README.md or non-drone control files
+  - name: Skip
+    image: quay.io/ansible/toolset
+    commands:
+      - test $DRONE_BUILD_EVENT = pull_request
+          && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
+          || DIFF_STRING=${DRONE_COMMIT_SHA}~
+      - echo "DIFF_STRING test is $DIFF_STRING"
+      - git --no-pager diff --name-only $DIFF_STRING
+      - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
+
   - name: Lint
     image: quay.io/ansible/toolset
     environment:
