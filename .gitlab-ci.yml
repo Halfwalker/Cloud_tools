@@ -1,10 +1,13 @@
 ---
 
 image: quay.io/ansible/toolset
+
+# Set up a docker-in-docker container for molecule to create containers in
 services:
   - docker:dind
 
 stages:
+  - lint
   - test
 
 before_script:
@@ -12,21 +15,71 @@ before_script:
   - python -V
   - ansible --version
   - molecule --version
-  - ls -la
 
-role-common:
+lint:
+  stage: lint
+  tags:
+    - docker
+  variables:
+    PY_COLORS: 1
+  script:
+    - yamllint .
+    - ansible-lint --force-color
+  only:
+    changes:
+      - cloud_tools.yml
+      - .gitlab-ci.yml
+      - molecule/default/*.yml
+      - molecule/default/test/*.yml
+
+molecule_2004:
+  stage: test
+  tags:
+    - docker
+  variables:
+    # Point to service docker-in-docker to create containers in
+    DOCKER_HOST: "tcp://docker:2375"
+    # Disable cert requirements
+    DOCKER_TLS_CERTDIR: ""
+    PY_COLORS: 1
+    ANSIBLE_FORCE_COLOR: 1
+    MOLECULE_DISTRO: ubuntu2004
+    # If using a docker hub cache define it here
+    # Used in molecule/default/molecule.yml to pull testing image
+    HUB_CACHE: dockerhub-cache.datto.net
+    # GH_ vars for access to github to avoid rate limiting
+    GH_USER: ${GH_USER}
+    GH_TOKEN: ${GH_TOKEN}
+  script:
+    - molecule --version
+    - molecule test
+  only:
+    changes:
+      - cloud_tools.yml
+      - .gitlab-ci.yml
+      - molecule/default/*.yml
+      - molecule/default/test/*.yml
+
+molecule_1804:
   stage: test
   tags:
     - docker
   variables:
     DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
     PY_COLORS: 1
-    MOLECULE_DISTRO: ubuntu2004
-    ROLE_PATH: /builds/Cloud_tools
+    ANSIBLE_FORCE_COLOR: 1
+    MOLECULE_DISTRO: ubuntu1804
+    HUB_CACHE: dockerhub-cache.datto.net
+    GH_USER: ${GH_USER}
+    GH_TOKEN: ${GH_TOKEN}
   script:
-    - env
-    - ls -la
-    - cd builds
-    - yamllint .
-    - ansible-lint --force-color
+    - molecule --version
+    - molecule test
+  only:
+    changes:
+      - cloud_tools.yml
+      - .gitlab-ci.yml
+      - molecule/default/*.yml
+      - molecule/default/test/*.yml
 
