@@ -7,7 +7,15 @@ driver:
 
 platforms:
   - name: "instance-${MOLECULE_DISTRO:-ubuntu2004}"
-    image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    # Default to dockerhub unless a local cache is defined
+    # Default to ubuntu2004 unless a distro is defined
+    image: "${HUB_CACHE:-registry.hub.docker.com}/geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    # https://github.com/ansible-community/molecule/issues/1331
+    # registry:
+    #   url: https://registry.hub.docker.com/
+    #   credentials:
+    #     username: ${DOCKER_USER}
+    #     password: ${DOCKER_PASS}
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -23,8 +31,6 @@ provisioner:
   env:
     GH_USER: ${GH_USER-""}
     GH_TOKEN: ${GH_TOKEN-""}
-    # Default to pick up the role or playbook directly if not set by CI/CD
-    ROLE_PATH: ${ROLE_PATH-"../.."}
 
 verifier:
   name: goss
