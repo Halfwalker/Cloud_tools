@@ -23,12 +23,6 @@ steps:
 
   - name: Lint
     image: quay.io/ansible/toolset
-    environment:
-      MOLECULE_DISTRO: ubuntu2004
-      # This defaults to "../.." for local manual running of molecule
-      # Drone imports the role into /drone/<rolename> so we have to be explict
-      # to find it when drone is running molecule.  See molecule.yml converge.yml
-      ROLE_PATH: /drone/Cloud_tools
     commands:
       - yamllint .
       - ansible-lint --force-color
@@ -37,7 +31,6 @@ steps:
     image: quay.io/ansible/toolset
     environment:
       MOLECULE_DISTRO: ubuntu2004
-      ROLE_PATH: /drone/Cloud_tools
       GH_USER:
         from_secret: GH_USER
       GH_TOKEN:
@@ -77,9 +70,6 @@ steps:
 
   - name: Lint
     image: quay.io/ansible/toolset
-    environment:
-      MOLECULE_DISTRO: ubuntu1804
-      ROLE_PATH: /drone/Cloud_tools
     commands:
       - yamllint .
       - ansible-lint --force-color
@@ -88,7 +78,6 @@ steps:
     image: quay.io/ansible/toolset
     environment:
       MOLECULE_DISTRO: ubuntu1804
-      ROLE_PATH: /drone/Cloud_tools
       GH_USER:
         from_secret: GH_USER
       GH_TOKEN:
