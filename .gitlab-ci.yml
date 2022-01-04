@@ -2,6 +2,10 @@
 
 image: quay.io/ansible/toolset
 
+# Set docker:dind to NOT use certs
+variables:
+  DOCKER_TLS_CERTDIR: ""
+
 # Set up a docker-in-docker container for molecule to create containers in
 services:
   - docker:dind
@@ -39,8 +43,6 @@ molecule_2004:
   variables:
     # Point to service docker-in-docker to create containers in
     DOCKER_HOST: "tcp://docker:2375"
-    # Disable cert requirements
-    DOCKER_TLS_CERTDIR: ""
     PY_COLORS: 1
     ANSIBLE_FORCE_COLOR: 1
     MOLECULE_DISTRO: ubuntu2004
@@ -51,7 +53,6 @@ molecule_2004:
     GH_USER: ${GH_USER}
     GH_TOKEN: ${GH_TOKEN}
   script:
-    - molecule --version
     - molecule test
   only:
     changes:
@@ -66,7 +67,6 @@ molecule_1804:
     - docker
   variables:
     DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
     PY_COLORS: 1
     ANSIBLE_FORCE_COLOR: 1
     MOLECULE_DISTRO: ubuntu1804
@@ -74,7 +74,6 @@ molecule_1804:
     GH_USER: ${GH_USER}
     GH_TOKEN: ${GH_TOKEN}
   script:
-    - molecule --version
     - molecule test
   only:
     changes:
