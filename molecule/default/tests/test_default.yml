@@ -23,8 +23,13 @@ package:
   vault:
     installed: true
     skip: false
+  terraform:
+    installed: true
+    skip: false
 
 file:
+  /usr/bin/terraform:
+    exists: true
   /usr/bin/vault:
     exists: true
   /usr/local/bin/minikube:
