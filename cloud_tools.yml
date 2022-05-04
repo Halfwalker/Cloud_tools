@@ -38,6 +38,7 @@
       - azure-cli
       - hammer
       - vault
+      - terraform
 
     # This variable can be overridden on the cmdline to select which tools to install
     cloud_tools: "{{ cloud_default_tools }}"
@@ -89,6 +90,7 @@
         key: https://apt.releases.hashicorp.com/gpg
         packages:
           - vault
+          - terraform
       - name: kubernetes
         # Ugly - they only have a xenial version for xenial/bionic
         # TODO - handle all distros cleanly
