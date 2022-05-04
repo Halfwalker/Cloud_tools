@@ -34,7 +34,7 @@ lint:
       - cloud_tools.yml
       - .gitlab-ci.yml
       - molecule/default/*.yml
-      - molecule/default/test/*.yml
+      - molecule/default/tests/*.yml
 
 molecule_2004:
   stage: test
@@ -59,7 +59,7 @@ molecule_2004:
       - cloud_tools.yml
       - .gitlab-ci.yml
       - molecule/default/*.yml
-      - molecule/default/test/*.yml
+      - molecule/default/tests/*.yml
 
 molecule_1804:
   stage: test
@@ -80,5 +80,5 @@ molecule_1804:
       - cloud_tools.yml
       - .gitlab-ci.yml
       - molecule/default/*.yml
-      - molecule/default/test/*.yml
+      - molecule/default/tests/*.yml
 
