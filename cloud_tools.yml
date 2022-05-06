@@ -379,35 +379,38 @@
         when: item.1.filename in cloud_tools
         check_mode: no
 
-      - name: Install tool executables to /usr/local/bin
-        get_url:
-          url: "{{ item.url[0] }}"
-          dest: "/usr/local/bin/{{ item.filename }}"
-          mode: 0755
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.type == "exe"
-          - item.filename in cloud_tools
+      - when: cloud_tools_info is defined
+        block:
+          - name: Install tool executables to /usr/local/bin
+            get_url:
+              url: "{{ item.url[0] }}"
+              dest: "/usr/local/bin/{{ item.filename }}"
+              mode: 0755
+            with_items: "{{ cloud_tools_info }}"
+            when:
+              - item.type == "exe"
+              - item.filename in cloud_tools
 
-      - name: Download and install archive type tool
-        unarchive:
-          src: "{{ item.url[0] }}"
-          remote_src: yes
-          dest: "/usr/local/bin"
-          creates: "/usr/local/bin/{{ item.filename }}"
-          mode: 0755
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.type == "archive"
-          - item.filename in cloud_tools
+          - name: Download and install archive type tool
+            unarchive:
+              src: "{{ item.url[0] }}"
+              remote_src: yes
+              dest: "/usr/local/bin"
+              creates: "/usr/local/bin/{{ item.filename }}"
+              mode: 0755
+            with_items: "{{ cloud_tools_info }}"
+            when:
+              - item.type == "archive"
+              - item.filename in cloud_tools
 
-      - name: Install deb packages
-        apt:
-          deb: "{{ item.url[0] }}"
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.type == "deb"
-          - item.filename in cloud_tools
+          - name: Install deb packages
+            apt:
+              deb: "{{ item.url[0] }}"
+            with_items: "{{ cloud_tools_info }}"
+            when:
+              - item.type == "deb"
+              - item.filename in cloud_tools
+        # block
 
 
       #
