@@ -22,6 +22,7 @@ cloud_default_tools:
   - hammer
   - drone
   - vault
+  - terraform
 
 # This variable can be overridden on the cmdline to select which tools to install
 cloud_tools: "{{ cloud_default_tools }}"
@@ -73,6 +74,11 @@ cloud_ppa_packages:
     key: https://apt.releases.hashicorp.com/gpg
     packages:
       - vault
+  - name: terraform
+    repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    key: https://apt.releases.hashicorp.com/gpg
+    packages:
+      - terraform
   - name: kubernetes
     # Ugly - they only have a xenial version for xenial/bionic
     # TODO - handle all distros cleanly
