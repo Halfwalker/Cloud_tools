@@ -16,7 +16,7 @@ workspace:
 
 steps:
   - name: Lint
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2004
@@ -29,7 +29,7 @@ steps:
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     environment:
       MOLECULE_DISTRO: ubuntu2004
     privileged: true
@@ -44,6 +44,9 @@ volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
+
+image_pull_secrets:
+  - dockerconfigjson
 
 ---
 kind: pipeline
@@ -63,14 +66,14 @@ workspace:
 
 steps:
   - name: Lint
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     environment:
       MOLECULE_DISTRO: ubuntu1804
       GH_USER:
@@ -89,4 +92,7 @@ volumes:
   - name: dockersock
     host:
       path: /var/run/docker.sock
+
+image_pull_secrets:
+  - dockerconfigjson
 
