@@ -131,6 +131,11 @@
     #           exe     - these are just direct executables, raw and unfiltered
     #                     placed in /usr/local/bin
     #           deb     - release has an ordinary .deb that can be installed
+    # unpack:   where to unpack repo if not /usr/local/bin
+    #           task will pre-create this dir if required for archives with bare contents
+    # links:    which path(s) inside the extracted archive or git repo to link to somewhere
+    #   - src:  source path in archive or git repo to link
+    #     dest: destination for the link
     # completion: Name of zsh/bash completion file in url or NONE
     # jmesquery:  Query to identify the exact download url we want
     cloud_git_tools:
@@ -192,6 +197,8 @@
       filename: "{{ item.1.filename }}"
       version: "{{ item.0.json.tag_name }}"
       type: "{{ item.1.type }}"
+      unpack: "{{ item.1.unpack | default(omit) }}"
+      links: "{{ item.1.links | default(omit) }}"
       url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
@@ -391,17 +398,54 @@
               - item.type == "exe"
               - item.filename in cloud_tools
 
-          - name: Download and install archive type tool
-            unarchive:
-              src: "{{ item.url[0] }}"
-              remote_src: yes
-              dest: "/usr/local/bin"
-              creates: "/usr/local/bin/{{ item.filename }}"
+          # NOTE: unarchive downloading from a remote url does not support username/password
+          #       so we may run into github rate limiting
+          #       Alternative is to use get_url first to pull the archive file (with auth)
+          #       and then unpack it
+          - name: git - Download archive type packages
+            get_url:
+              url: "{{ item.url[0] }}"
+              dest: "/tmp/{{ item.url[0] | basename }}"
+              url_username: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+              url_password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
               mode: 0755
             with_items: "{{ cloud_tools_info }}"
-            when:
-              - item.type == "archive"
-              - item.filename in cloud_tools
+            when: item.type == "archive"
+
+          - name: git - Install archive type packages
+            unarchive:
+              src: "/tmp/{{ item.url[0] | basename }}"
+              remote_src: yes
+              dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
+              creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
+              owner: "{{ ansible_user_id }}"
+              group: "{{ ansible_user_id }}"
+              mode: 0755
+            with_items: "{{ cloud_tools_info }}"
+            when: item.type == "archive"
+
+          - name: git - Pre-create dirs for links
+            file:
+              path: "{{ item.1.dest | dirname }}"
+              state: directory
+            with_subelements:
+              - "{{ cloud_git_tools }}"
+              - links
+              - skip_missing: true
+
+          # NOTE: this task will fail in check mode since it depends on the src
+          #       files existing from being unpacked by tasks above
+          - name: git - Create links from downloaded git stuffs
+            file:
+              src: "{{ item.1.src }}"
+              dest: "{{ item.1.dest }}"
+              state: link
+              owner: "{{ ansible_user_id }}"
+              group: "{{ ansible_user_id }}"
+            with_subelements:
+              - "{{ cloud_git_tools }}"
+              - links
+              - skip_missing: true
 
           - name: Install deb packages
             apt:
