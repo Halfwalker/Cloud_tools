@@ -25,6 +25,7 @@
       - minikube
       - kind
       - kubernetes
+      - Kui
       - skaffold
       - helm
       - docker-machine
@@ -152,6 +153,17 @@
         completion_zsh: _docker-compose
         completion_bash: docker-compose
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
+      # Kui - kubectl with graphical results
+      - repo: kubernetes-sigs/kui
+        filename: Kui
+        type: archive
+        unpack: /usr/local/share
+        links:
+          - src: /usr/local/share/Kui-linux-x64/Kui
+            dest: /usr/local/bin/Kui
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, 'linux-x64.zip')].browser_download_url"
       # dive - nice docker image analysis tool
       - repo: wagoodman/dive
         filename: dive
@@ -397,6 +409,18 @@
             when:
               - item.type == "exe"
               - item.filename in cloud_tools
+
+          # - name: Download and install archive type tool
+          #   unarchive:
+          #     src: "{{ item.url[0] }}"
+          #     remote_src: yes
+          #     dest: "/usr/local/bin"
+          #     creates: "/usr/local/bin/{{ item.filename }}"
+          #     mode: 0755
+          #   with_items: "{{ cloud_tools_info }}"
+          #   when:
+          #     - item.type == "archive"
+          #     - item.filename in cloud_tools
 
           # NOTE: unarchive downloading from a remote url does not support username/password
           #       so we may run into github rate limiting
