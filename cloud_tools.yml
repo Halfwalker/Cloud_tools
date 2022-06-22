@@ -410,18 +410,6 @@
               - item.type == "exe"
               - item.filename in cloud_tools
 
-          # - name: Download and install archive type tool
-          #   unarchive:
-          #     src: "{{ item.url[0] }}"
-          #     remote_src: yes
-          #     dest: "/usr/local/bin"
-          #     creates: "/usr/local/bin/{{ item.filename }}"
-          #     mode: 0755
-          #   with_items: "{{ cloud_tools_info }}"
-          #   when:
-          #     - item.type == "archive"
-          #     - item.filename in cloud_tools
-
           # NOTE: unarchive downloading from a remote url does not support username/password
           #       so we may run into github rate limiting
           #       Alternative is to use get_url first to pull the archive file (with auth)
