@@ -28,6 +28,12 @@ package:
     skip: false
 
 file:
+  /usr/local/share/Kui-linux-x64:
+    exists: true
+  /usr/local/bin/Kui:
+    exists: true
+    filetype: symlink
+    linked_to: /usr/local/share/Kui-linux-x64/Kui
   /usr/bin/terraform:
     exists: true
   /usr/bin/vault:
