@@ -9,7 +9,7 @@ workspace:
 steps:
   # Skip the pipeline if only changes to README.md or non-drone control files
   - name: Skip
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     commands:
       # Grab the incoming commit info to see what changed
       - test $DRONE_BUILD_EVENT = pull_request
@@ -22,13 +22,13 @@ steps:
       - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
 
   - name: Lint
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     environment:
       MOLECULE_DISTRO: ubuntu2004
       GH_USER:
@@ -59,7 +59,7 @@ workspace:
 steps:
   # Skip the pipeline if only changes to README.md or non-drone control files
   - name: Skip
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     commands:
       - test $DRONE_BUILD_EVENT = pull_request
           && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
@@ -69,13 +69,13 @@ steps:
       - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
 
   - name: Lint
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/ansible/toolset
+    image: quay.io/halfwalker/toolset
     environment:
       MOLECULE_DISTRO: ubuntu1804
       GH_USER:

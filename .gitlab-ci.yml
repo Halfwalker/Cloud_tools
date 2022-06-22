@@ -1,6 +1,6 @@
 ---
 
-image: quay.io/ansible/toolset
+image: quay.io/halfwalker/toolset
 
 # Set docker:dind to NOT use certs
 variables:
