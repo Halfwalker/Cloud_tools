@@ -224,11 +224,11 @@
     #      - "{{ cloud_git_tools }}"
     cloud_tools_template:
       filename: "{{ item.1.filename }}"
-      version: "{{ item.0.json.tag_name }}"
+      version: "{{ item.0.json[0].tag_name }}"
       type: "{{ item.1.type }}"
       unpack: "{{ item.1.unpack | default(omit) }}"
       links: "{{ item.1.links | default(omit) }}"
-      url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
+      url: "{{ item[0].json[0] | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
     # Need a timeout to allow molecule testing to continue during CI/CD
@@ -390,7 +390,7 @@
       #
       - name: Get latest release for each git package in cloud_tools
         uri:
-          url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
+          url: "https://api.github.com/repos/{{ item.repo }}/releases"
           method: GET
           return_content: true
           status_code: 200
