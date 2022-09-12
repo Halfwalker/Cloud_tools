@@ -414,6 +414,7 @@
           - "{{ cloud_git_tools }}"
         when: item.1.filename in cloud_tools
         check_mode: no
+        no_log: true
 
       - when: cloud_tools_info is defined
         block:
