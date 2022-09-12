@@ -462,6 +462,7 @@
               - "{{ cloud_git_tools }}"
               - links
               - skip_missing: true
+            when: item.0.filename in cloud_tools
 
           # NOTE: this task will fail in check mode since it depends on the src
           #       files existing from being unpacked by tasks above
@@ -476,6 +477,7 @@
               - "{{ cloud_git_tools }}"
               - links
               - skip_missing: true
+            when: item.0.filename in cloud_tools
 
           - name: Install deb packages
             apt:
