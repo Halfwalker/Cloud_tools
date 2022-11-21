@@ -50,7 +50,6 @@ ansible-playbook -K -i hosts playbook.yml -l localhost
 * [docker-machine](https://github.com/docker/machine/releases)
 * [docker-compose](https://github.com/docker/compose/releases)
 * [dive (docker layer stats)](https://github.com/wagoodman/dive)
-* [dlayer (docker layer stats](https://github.com/wercker/dlayer)
 * [drone (drone-cli)](https://github.com/drone/drone-cli)
 * [AWS awscli (v2)](https://aws.amazon.com/cli/)
 * [AWS gimme-aws-creds](https://github.com/Nike-Inc/gimme-aws-creds)
