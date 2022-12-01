@@ -47,7 +47,7 @@
       state: present
       install_recommends: no
       update_cache: yes
-      name: "{{ cloud_prereq_packages.common }} + {{ cloud_prereq_packages[ansible_distribution_release] }}"
+      name: "{{ cloud_prereq_packages.common + cloud_prereq_packages[ansible_distribution_release] }}"
 
 
   #
