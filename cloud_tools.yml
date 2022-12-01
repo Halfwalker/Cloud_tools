@@ -286,7 +286,7 @@
       # to hold the list of pkgs that are in the cloud_tools var
       - name: Build list of pip  packages to install
         set_fact:
-          packages_via_pip: "{{ packages_via_pip | default([]) + [ item ] }}"
+          packages_via_pip: "{{ packages_via_pip | default([]) + [item] }}"
         with_items: "{{ cloud_pip_packages }}"
         when: item in cloud_tools
 
@@ -394,7 +394,7 @@
           validate_certs: false
           user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
           password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
-          force_basic_auth: "{% if lookup('env', 'GH_USER') %}yes{% else %}no{% endif%}"
+          force_basic_auth: "{% if lookup('env', 'GH_USER') %}yes{% else %}no{% endif %}"
         register: cloud_git_releases
         until: cloud_git_releases.status == 200
         retries: 5
@@ -404,7 +404,7 @@
 
       - name: Build list of tools, versions, urls
         set_fact:
-          cloud_tools_info: "{{ cloud_tools_info | default([]) + [ cloud_tools_template ] }}"
+          cloud_tools_info: "{{ cloud_tools_info | default([]) + [cloud_tools_template] }}"
         with_together:
           - "{{ cloud_git_releases.results }}"
           - "{{ cloud_git_tools }}"

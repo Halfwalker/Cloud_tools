@@ -1,3 +1,4 @@
 ---
 
-- import_playbook: "../../cloud_tools.yml"
+- name: Include cloud_tools playbook
+  import_playbook: "../../cloud_tools.yml"
