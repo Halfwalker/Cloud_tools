@@ -16,7 +16,8 @@
 #
 #   ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 
-- hosts: all
+- name: Install Cloudy tools
+  hosts: all
   gather_facts: true
 
   vars:
