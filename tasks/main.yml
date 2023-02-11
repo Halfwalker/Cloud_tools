@@ -10,6 +10,17 @@
     when: force_update
     with_items: "{{ cloud_aws_configs }}"
 
+  # dlayer Appears to be a dead project
+  # https://github.com/wercker/dlayer
+  # Binary still works though, so could be put elsewhere
+  - name: Copy dlayer analyzer
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      mode: "{{ item.mode }}"
+    with_items:
+      - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
+
   - name: Ensure config dirs are there
     file:
       path: "/home/{{ ansible_user_id }}/{{ item }}"
