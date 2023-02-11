@@ -28,6 +28,8 @@ package:
     skip: false
 
 file:
+  /usr/local/bin/dlayer:
+    exists: true
   /usr/local/share/Kui-linux-x64:
     exists: true
   /usr/local/bin/Kui:

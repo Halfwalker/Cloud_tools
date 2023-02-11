@@ -43,7 +43,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [docker-machine](https://github.com/docker/machine/releases)
 * [docker-compose](https://github.com/docker/compose/releases)
 * [dive (docker layer stats)](https://github.com/wagoodman/dive)
-* [dlayer (docker layer stats](https://github.com/wercker/dlayer)
+* [dlayer (docker layer stats)](https://github.com/wercker/dlayer)
 * [AWS awscli (v2)](https://aws.amazon.com/cli/)
 * [AWS gimme-aws-creds](https://github.com/Nike-Inc/gimme-aws-creds)
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)

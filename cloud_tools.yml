@@ -31,6 +31,7 @@
       - helm
       - docker-machine
       - docker-compose
+      - dlayer
       - dive
       - awscli
       - gimme-aws-creds
@@ -279,6 +280,22 @@
           group: root
           mode: '0755'
 
+
+      #
+      # Install local binaries - eg. dlayer
+      #
+
+      # dlayer Appears to be a dead project
+      # https://github.com/wercker/dlayer
+      # Binary still works though, so could be put elsewhere
+      - name: Copy dlayer analyzer
+        copy:
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          mode: "{{ item.mode }}"
+        with_items:
+          - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
+        when: '"dlayer" in cloud_tools'
 
       #
       # Install tools via python pip
