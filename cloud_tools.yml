@@ -297,6 +297,7 @@
           - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
         when: '"dlayer" in cloud_tools'
 
+
       #
       # Install tools via python pip
       #
