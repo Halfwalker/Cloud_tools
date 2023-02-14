@@ -37,6 +37,8 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * kubernetes (installs these packages)
     * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
     * [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+* [kubectx](https://github.com/ahmetb/kubectx)
+* [kubens](https://github.com/ahmetb/kubectx)
 * [Kui](https://github.com/kubernetes-sigs/kui)
 * [skaffold](https://skaffold.dev/docs/install/)
 * [helm](https://helm.sh/docs/intro/install/)

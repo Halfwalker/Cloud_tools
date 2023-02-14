@@ -26,6 +26,8 @@
       - minikube
       - kind
       - kubernetes
+      - kubectx
+      - kubens
       - Kui
       - skaffold
       - helm
@@ -171,6 +173,28 @@
         completion_zsh: _docker-compose
         completion_bash: docker-compose
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
+      # kubectx and kubens
+      - repo: ahmetb/kubectx
+        filename: kubectx
+        type: archive
+        unpack: /usr/local/share/kubetools
+        links:
+          - src: /usr/local/share/kubetools/kubectx
+            dest: /usr/local/bin/kubectx
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? contains (browser_download_url, 'kubectx_') && ends_with (browser_download_url, 'linux_x86_64.tar.gz')].browser_download_url"
+
+      - repo: ahmetb/kubectx
+        filename: kubens
+        type: archive
+        unpack: /usr/local/share/kubetools
+        links:
+          - src: /usr/local/share/kubetools/kubens
+            dest: /usr/local/bin/kubens
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? contains (browser_download_url, 'kubens_') && ends_with (browser_download_url, 'linux_x86_64.tar.gz')].browser_download_url"
       # Kui - kubectl with graphical results
       - repo: kubernetes-sigs/kui
         filename: Kui
