@@ -456,7 +456,19 @@
               url_password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
               mode: 0755
             with_items: "{{ cloud_tools_info }}"
-            when: item.type == "archive"
+            when:
+              - item.filename in cloud_tools
+              - item.type == "archive"
+
+          - name: git - Pre-create unpack dir
+            file:
+              path: "{{ item.unpack }}"
+              state: directory
+            with_items: "{{ cloud_tools_info }}"
+            when:
+              - item.filename in cloud_tools
+              - item.type == "archive"
+              - item.unpack is defined
 
           - name: git - Install archive type packages
             unarchive:
@@ -468,7 +480,9 @@
               group: "{{ ansible_user_id }}"
               mode: 0755
             with_items: "{{ cloud_tools_info }}"
-            when: item.type == "archive"
+            when:
+              - item.filename in cloud_tools
+              - item.type == "archive"
 
           - name: git - Pre-create dirs for links
             file:
