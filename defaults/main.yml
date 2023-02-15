@@ -209,5 +209,7 @@ cloud_tools_template:
   filename: "{{ item.1.filename }}"
   version: "{{ item.0.json.tag_name }}"
   type: "{{ item.1.type }}"
+  unpack: "{{ item.1.unpack | default(omit) }}"
+  links: "{{ item.1.links | default(omit) }}"
   url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
