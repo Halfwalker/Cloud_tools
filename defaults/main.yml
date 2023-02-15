@@ -8,6 +8,7 @@ cloud_default_tools:
   - minikube
   - kind
   - kubernetes
+  - Kui
   - skaffold
   - helm
   - docker-machine
@@ -148,6 +149,17 @@ cloud_git_tools:
     completion_zsh: _docker-compose
     completion_bash: docker-compose
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
+  # Kui - kubectl with graphical results
+  - repo: kubernetes-sigs/kui
+    filename: Kui
+    type: archive
+    unpack: /usr/local/share
+    links:
+      - src: /usr/local/share/Kui-linux-x64/Kui
+        dest: /usr/local/bin/Kui
+    completion_zsh: NONE
+    completion_bash: NONE
+    jmesquery: "assets[? ends_with (browser_download_url, 'linux-x64.zip')].browser_download_url"
   # dive - nice docker image analysis tool
   - repo: wagoodman/dive
     filename: dive
