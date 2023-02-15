@@ -229,7 +229,7 @@
 
       - name: git - Install archive type packages
         unarchive:
-          src: "{{ item.url[0] }}"
+          src: "/tmp/{{ item.url[0] | basename }}"
           remote_src: yes
           dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
           creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
