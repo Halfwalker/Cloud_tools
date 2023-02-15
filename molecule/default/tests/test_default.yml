@@ -39,6 +39,24 @@ file:
     exists: true
   /usr/bin/kubectl:
     exists: true
+  /usr/local/share/kubetools:
+    exists: true
+    filetype: directory
+  /usr/local/bin/kubectx:
+    exists: true
+    filetype: symlink
+    linked_to: /usr/local/share/kubetools/kubectx
+  /usr/local/bin/kubens:
+    exists: true
+    filetype: symlink
+    linked_to: /usr/local/share/kubetools/kubens
+  /usr/local/share/Kui-linux-x64:
+    exists: true
+    filetype: directory
+  /usr/local/bin/Kui:
+    exists: true
+    filetype: symlink
+    linked_to: /usr/local/share/Kui-linux-x64/Kui
   /usr/local/bin/skaffold:
     exists: true
   /usr/sbin/helm:
