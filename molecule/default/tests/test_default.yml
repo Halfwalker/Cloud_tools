@@ -36,11 +36,11 @@ file:
   /usr/local/bin/kubectx:
     exists: true
     filetype: symlink
-    linked_to: /usr/local/share/kubetools/kubectx
+    linked-to: /usr/local/share/kubetools/kubectx
   /usr/local/bin/kubens:
     exists: true
     filetype: symlink
-    linked_to: /usr/local/share/kubetools/kubens
+    linked-to: /usr/local/share/kubetools/kubens
   /usr/local/share/Kui-linux-x64:
     exists: true
     filetype: directory
