@@ -1,6 +1,56 @@
 ---
 kind: pipeline
 type: docker
+name: ubuntu2204
+
+# Need to define workspace as role name so molecule can find it
+workspace:
+  path: /drone/ansible-cloud_tools
+
+# Have to define env variables in EACH step, not as overall pipeline
+# setup :(  Due to drone-cli using old code
+# https://discourse.drone.io/t/global-environment-settings-do-not-work-for-local-drone-exec/8786
+#
+# environment:
+#   MOLECULE_DISTRO: ubuntu2004
+
+steps:
+  - name: Lint
+    image: quay.io/halfwalker/toolset
+    pull: if-not-exists
+    environment:
+      MOLECULE_DISTRO: ubuntu2204
+      GH_USER:
+        from_secret: GH_USER
+      GH_TOKEN:
+        from_secret: GH_TOKEN
+    commands:
+      - yamllint .
+      - ansible-lint --force-color
+
+  - name: Molecule
+    image: quay.io/halfwalker/toolset
+    environment:
+      MOLECULE_DISTRO: ubuntu2204
+    privileged: true
+    commands:
+      - molecule --version
+      - molecule test
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
+image_pull_secrets:
+  - dockerconfigjson
+
+---
+kind: pipeline
+type: docker
 name: ubuntu2004
 
 # Need to define workspace as role name so molecule can find it
