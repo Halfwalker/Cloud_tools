@@ -71,15 +71,16 @@
         - python{{ ansible_python.version.major }}-keyrings.alt
         - python{{ ansible_python.version.major }}-wheel
         - unzip
-      jammy: []
+      jammy: 
+        - python{{ ansible_python.version.major }}-oauthlib
       focal:
-      - python{{ ansible_python.version.major }}-oauth
+        - python{{ ansible_python.version.major }}-oauth
       bionic:
-      - python-jmespath
-      - python{{ ansible_python.version.major }}-oauth
+        - python-jmespath
+        - python{{ ansible_python.version.major }}-oauth
       xenial:
-      - python-jmespath
-      - python{{ ansible_python.version.major }}-oauth
+        - python-jmespath
+        - python{{ ansible_python.version.major }}-oauth
 
     cloud_pip_packages:
       # - awscli
