@@ -11,6 +11,7 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
     pre_build_image: true
+
 provisioner:
   name: ansible
   inventory:
@@ -19,6 +20,10 @@ provisioner:
         vault_github_auth:
           name: $GH_USER
           token: $GH_TOKEN
+  env:
+    GH_USER: ${GH_USER-""}
+    GH_TOKEN: ${GH_TOKEN-""}
+
 verifier:
   name: goss
 scenario:
