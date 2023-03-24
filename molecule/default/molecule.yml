@@ -26,6 +26,10 @@ provisioner:
 
 verifier:
   name: goss
+  env:
+    GH_USER: ${GH_USER-""}
+    GH_TOKEN: ${GH_TOKEN-""}
+
 scenario:
   name: default
   test_sequence:
