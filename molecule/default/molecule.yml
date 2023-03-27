@@ -29,9 +29,12 @@ provisioner:
     # https://univers-libre.net/posts/ansible-molecule.html
     skip-tags: molecule-idempotence-notest
   env:
-    GH_USER: ${GH_USER-""}
-    GH_TOKEN: ${GH_TOKEN-""}
+    GH_USER: ${GH_USER:-""}
+    GH_TOKEN: ${GH_TOKEN:-""}
 
 verifier:
   name: goss
+  env:
+    GH_USER: ${GH_USER:-""}
+    GH_TOKEN: ${GH_TOKEN:-""}
 
