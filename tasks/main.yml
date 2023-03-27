@@ -160,6 +160,9 @@
   #
   # Tools from github
   #
+  - debug:
+      msg: "vault.user {{ vault_github_auth.name }} vault.token {{ vault_github_auth.token }} GH_USER {{ lookup('env', 'GH_USER') | default(omit) }} GH_TOKEN {{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+
   - name: Get latest release for each git package in cloud_tools
     uri:
       url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
