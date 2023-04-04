@@ -20,10 +20,6 @@ steps:
     pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2204
-      GH_USER:
-        from_secret: GH_USER
-      GH_TOKEN:
-        from_secret: GH_TOKEN
     commands:
       - yamllint .
       - ansible-lint --force-color
@@ -32,6 +28,10 @@ steps:
     image: quay.io/halfwalker/toolset
     environment:
       MOLECULE_DISTRO: ubuntu2204
+      GH_USER:
+        from_secret: GH_USER
+      GH_TOKEN:
+        from_secret: GH_TOKEN
     privileged: true
     commands:
       - molecule --version
@@ -70,10 +70,6 @@ steps:
     pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2004
-      GH_USER:
-        from_secret: GH_USER
-      GH_TOKEN:
-        from_secret: GH_TOKEN
     commands:
       - yamllint .
       - ansible-lint --force-color
@@ -82,6 +78,10 @@ steps:
     image: quay.io/halfwalker/toolset
     environment:
       MOLECULE_DISTRO: ubuntu2004
+      GH_USER:
+        from_secret: GH_USER
+      GH_TOKEN:
+        from_secret: GH_TOKEN
     privileged: true
     commands:
       - molecule --version
