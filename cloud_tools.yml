@@ -71,7 +71,7 @@
         - python{{ ansible_python.version.major }}-keyrings.alt
         - python{{ ansible_python.version.major }}-wheel
         - unzip
-      jammy: 
+      jammy:
         - python{{ ansible_python.version.major }}-oauthlib
       focal:
         - python{{ ansible_python.version.major }}-oauth
@@ -305,6 +305,31 @@
           group: root
           mode: '0755'
 
+      #
+      # ~/.aws is needed for both awscli and gimme-aws-creds
+      #
+      - name: Ensure AWS config dirs are there
+        file:
+          path: "{{ ansible_user_dir }}/{{ item }}"
+          state: directory
+          owner: "{{ ansible_user_id }}"
+          group: "{{ ansible_user_id }}"
+          mode: '0750'
+        with_items:
+          - .aws
+        when: '"awscli" in cloud_tools or "gimme-aws-creds" in cloud_tools'
+
+      - name: Ensure puppet/hammer config dirs are there
+        file:
+          path: "/home/{{ ansible_user_id }}/{{ item }}"
+          state: directory
+          owner: "{{ ansible_user_id }}"
+          group: "{{ ansible_user_id }}"
+          mode: '0750'
+        with_items:
+          - .hammer
+        when: '"hammer" in cloud_tools'
+
 
       #
       # Install local binaries - eg. dlayer
@@ -354,15 +379,6 @@
       - when: '"awscli" in cloud_tools'
         block:
         #
-        - name: Ensure config dirs are there
-          file:
-            path: "{{ ansible_user_dir }}/{{ item }}"
-            state: directory
-            owner: "{{ ansible_user_id }}"
-            group: "{{ ansible_user_id }}"
-          with_items:
-            - .aws
-
         - name: Copy .aws configuration files if not there
           copy:
             content: "{{ item.src }}"
