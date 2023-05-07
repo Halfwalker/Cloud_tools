@@ -21,16 +21,27 @@
     with_items:
       - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
 
-  - name: Ensure config dirs are there
+  - name: Ensure AWS config dirs are there
     file:
       path: "/home/{{ ansible_user_id }}/{{ item }}"
       state: directory
       owner: "{{ ansible_user_id }}"
       group: "{{ ansible_user_id }}"
-      mode: '0644'
+      mode: '0750'
     with_items:
       - .aws
+    when: '"awscli" in cloud_tools or "gimme-aws-creds" in cloud_tools'
+
+  - name: Ensure puppet/hammer config dirs are there
+    file:
+      path: "/home/{{ ansible_user_id }}/{{ item }}"
+      state: directory
+      owner: "{{ ansible_user_id }}"
+      group: "{{ ansible_user_id }}"
+      mode: '0750'
+    with_items:
       - .hammer
+    when: '"hammer" in cloud_tools'
 
   - name: Ensure bash_completion.d dir is there
     file:
