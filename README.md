@@ -52,6 +52,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [Terraform](https://www.terraform.io/downloads)
+* [Hammer](http://deb.theforeman.org/)
 
 ### Install subset of tools
 
