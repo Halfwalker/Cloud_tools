@@ -60,6 +60,7 @@ ansible-playbook -K -i hosts playbook.yml -l localhost
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
 * [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+* [Terraform](https://www.terraform.io/downloads)
 
 ### Install subset of tools
 
