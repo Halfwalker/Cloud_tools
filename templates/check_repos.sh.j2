@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Check all tracked files and dirs for updates
+#
+# .git-repos-tracked
+# /home/deano/.vim/bundle/Vundle.vim
+# /home/deano/.vim/bundle/indentLine
+# /home/deano/.vim/bundle/vim-terraform
+# /home/deano/.vim/bundle/vim-bbye
+# /home/deano/.vim/bundle/vim-quickui
+
+# .git-files-tracked
+# /usr/local/bin/fzf junegunn/fzf fzf --version | cut -d' ' -f1
+
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+NORMAL=$(tput setaf 7)
+
+verlte() {
+    printf '%s\n%s' "$1" "$2" | sort -C -V
+}
+verlt() {
+    ! verlte "$2" "$1"
+}
+
+# Check git repos
+GR33=$(pwd)
+while read f ; do
+    if [ -e ${f}/.git ] ; then
+        cd $f
+        git remote update > /dev/null 2>&1
+        printf "%-65s" $(pwd)
+        git status -s -b | egrep -v "^ M.*|^\?\?.*"
+    fi
+done < {{ git_repos_tracked }} ; cd $GR33
+
+# Check git files
+while read f ; do
+    TRACKED=$(echo $f | cut -d' ' -f1)
+    REPO=$(echo $f | cut -d' ' -f2)
+    VERSION=$(echo $f | cut -d' ' -f3-)
+    REPOVER=$(curl --silent --request GET --header "Authorization: Bearer {{ vault_github_auth.token }}" --url "https://api.github.com/repos/${REPO}/releases/latest" | jq -r .tag_name| sed 's/[^0-9.]*//g')
+    CURRVER=$(eval ${VERSION}| sed 's/[^0-9.]*//g')
+
+    echo -n "${NORMAL}${TRACKED} Current $CURRVER Github $REPOVER "
+    if verlt  ${CURRVER} ${REPOVER} ; then
+        echo "${RED}Needs update - https://github.com/${REPO}/releases" 
+    else
+        echo "${GREEN}OK"
+    fi
+done < ~/.git-files-tracked | column -t
+

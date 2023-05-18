@@ -10,6 +10,19 @@
     when: force_update
     with_items: "{{ cloud_aws_configs }}"
 
+  # changed_when: false so idepmpotence works
+  - name: Ensure git repo tracking list files exist
+    file:
+      path: "{{ item }}"
+      state: touch
+      owner: "{{ username }}"
+      group: "{{ username }}"
+    with_items:
+      - "{{ git_repos_tracked }}"
+      - "{{ git_files_tracked }}"
+    become_user: "{{ username }}"
+    changed_when: false
+
   # dlayer Appears to be a dead project
   # https://github.com/wercker/dlayer
   # Binary still works though, so could be put elsewhere
@@ -287,6 +300,31 @@
         when:
           - item.type == "deb"
           - item.filename in cloud_tools
+
+      - name: Ensure each repo location in other tracking file
+        lineinfile:
+          dest: "{{ git_files_tracked }}"
+          line: "{{ item.tracking }}"
+          state: present
+        become_user: "{{ username }}"
+        with_items: "{{ cloud_git_tools }}"
+        when:
+          - item.type == "exe" or item.type == "archive" or item.type == "deb"
+          - item.filename in cloud_tools
+          - item.tracking is defined
+
+      # NOTE: This is also installed by the ansible-git_tools role
+      #       Make sure that this one matches that one
+      - name: Copy check_repos.sh script
+        template:
+          src: "{{ item.src }}"
+          dest: "{{ item.dest }}"
+          owner: "{{ username }}"
+          group: "{{ username }}"
+          mode: "{{ item.mode }}"
+        with_items:
+          - { src: check_repos.sh.j2, dest: /usr/local/bin/check_repos.sh, mode: '0755' }
+
     # block
 
 

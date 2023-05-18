@@ -3,6 +3,10 @@
 # Default to NOT force-update the config files
 force_update: false
 
+# Location of cloned git repos, in case it isn't defined elsewhere
+git_repos_tracked: "/home/{{ username }}/.git-repos-tracked"
+git_files_tracked: "/home/{{ username }}/.git-files-tracked"
+
 # Default list of tools
 cloud_default_tools:
   - minikube
@@ -145,12 +149,14 @@ cloud_git_tools:
     completion_zsh: _docker-machine
     completion_bash: docker-machine.bash
     jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
+    tracking: '/usr/local/bin/docker-machine docker/machine /usr/local/bin/docker-machine --version | cut -d" " -f3'
   - repo: docker/compose
     filename: docker-compose
     type: exe
     completion_zsh: _docker-compose
     completion_bash: docker-compose
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
+    tracking: '/usr/local/bin/docker-compose docker/compose /usr/local/bin/docker-compose --version | cut -d" " -f4'
   # kubectx and kubens
   - repo: ahmetb/kubectx
     filename: kubectx
@@ -162,6 +168,7 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? contains (browser_download_url, 'kubectx_') && ends_with (browser_download_url, 'linux_x86_64.tar.gz')].browser_download_url"
+    tracking: '/usr/local/bin/kubectx ahmetb/kubectx /usr/local/bin/kubectx --version'
   - repo: ahmetb/kubectx
     filename: kubens
     type: archive
@@ -172,7 +179,9 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? contains (browser_download_url, 'kubens_') && ends_with (browser_download_url, 'linux_x86_64.tar.gz')].browser_download_url"
-  # Kui - kubectl with graphical results
+    tracking: '/usr/local/bin/kubens ahmetb/kubectx /usr/local/bin/kubens --version'
+  # Kui - kubectl with graphical results - runs under a desktop environment
+  #       Need libnss3 libatk1.0-0 libatk-bridge2.0-0 libcup2 libdrm2
   - repo: kubernetes-sigs/kui
     filename: Kui
     type: archive
@@ -190,24 +199,28 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'amd64.deb')].browser_download_url"
+    tracking: '/usr/local/bin/dive wagoodman/dive /usr/local/bin/dive --version | cut -d" " -f2'
   - repo: kubernetes-sigs/kind
     filename: kind
     type: exe
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-amd64')].browser_download_url"
+    tracking: '/usr/local/bin/kind kubernetes-sigs/kind /usr/local/bin/kind --version | cut -d" " -f3'
   - repo: weaveworks/eksctl
     filename: eksctl
     type: archive
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'Linux_amd64.tar.gz')].browser_download_url"
+    tracking: '/usr/local/bin/eksctl weaveworks/eksctl /usr/local/bin/eksctl version'
   - repo: drone/drone-cli
     filename: drone
     type: archive
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.tar.gz')].browser_download_url"
+    tracking: '/usr/local/bin/drone drone/drone-cli /usr/local/bin/drone --version | cut -d" " -f3'
 
 
 # Packages that are direct downloads of the binary
