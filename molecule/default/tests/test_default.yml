@@ -24,7 +24,39 @@ package:
     installed: true
     skip: false
 
+#
+# NOTE: Hard-coded values here could be replaced by environment vars
+#       as in { { .Env.USERNAME } } where USERNAME is set in both
+#       .drone.yml and molecule/default/molecule.yml
+#
+# .drone.yml
+#   environment:
+#     USERNAME: testing
+#        or
+#     USERNAME:
+#       from_secret: special_secret_in_drone
+#
+# molecule/default/molecule.yml
+#   provisioner:
+#     env:
+#       USERNAME: ${USERNAME}
+#
+
 file:
+  /home/testing/.git-repos-tracked:
+    exists: true
+    filetype: file
+    owner: testing
+    group: testing
+  # Currently just a few ennties to verify - can add more
+  /home/testing/.git-files-tracked:
+    exists: true
+    filetype: file
+    owner: testing
+    group: testing
+    contains:
+      - "/usr/local/bin/yt-dlt yt-dlp/yt-dlp /usr/local/bin/yt-dlp --version"
+      - "/usr/local/bin/fx antonmedv/fx /usr/local/bin/fx --version"
   /usr/local/bin/dlayer:
     exists: true
   /usr/bin/vault:

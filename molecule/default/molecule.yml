@@ -20,6 +20,8 @@ provisioner:
         vault_github_auth:
           name: $GH_USER
           token: $GH_TOKEN
+        # Create a testing user in molecule/default/prepare.yml
+        username: testing
   env:
     GH_USER: ${GH_USER:-""}
     GH_TOKEN: ${GH_TOKEN:-""}

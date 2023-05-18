@@ -6,6 +6,11 @@
 
   tasks:
 
+    - name: Add testing user
+      user:
+        name: testing
+        comment: Test user for cloud_tools
+
     - name: Install ZSH
       apt:
         state: present
