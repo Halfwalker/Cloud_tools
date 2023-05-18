@@ -48,15 +48,16 @@ file:
     filetype: file
     owner: testing
     group: testing
-  # Currently just a few ennties to verify - can add more
+  # Currently just a few entries to verify - can add more
+  # Would be contents of tracking: items in each cloud_git_tools entry
   /home/testing/.git-files-tracked:
     exists: true
     filetype: file
     owner: testing
     group: testing
     contains:
-      - "/usr/local/bin/yt-dlt yt-dlp/yt-dlp /usr/local/bin/yt-dlp --version"
-      - "/usr/local/bin/fx antonmedv/fx /usr/local/bin/fx --version"
+      - '/usr/local/bin/kubectx ahmetb/kubectx /usr/local/bin/kubectx --version'
+      - '/usr/local/bin/eksctl weaveworks/eksctl /usr/local/bin/eksctl version'
   /usr/local/bin/dlayer:
     exists: true
   /usr/bin/vault:
