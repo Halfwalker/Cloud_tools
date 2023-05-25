@@ -25,7 +25,8 @@
     cloud_default_tools:
       - minikube
       - kind
-      - kubernetes
+      - kubectl
+      - kubeadm
       - kubectx
       - kubens
       - Kui
@@ -113,13 +114,19 @@
         key: https://apt.releases.hashicorp.com/gpg
         packages:
           - terraform
-      - name: kubernetes
+      - name: kubectl
         # Ugly - they only have a xenial version for xenial/bionic
         # TODO - handle all distros cleanly
         repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
         key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         packages:
           - kubectl
+      - name: kubeadm
+        # Ugly - they only have a xenial version for xenial/bionic
+        # TODO - handle all distros cleanly
+        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+        key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        packages:
           - kubeadm
       - name: azure-cli
         repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
@@ -604,9 +611,7 @@
           - /usr/local/bin/skaffold
         when:
           - zsh_installed.stat.exists
-          - item | basename in cloud_tools or
-            (item | basename == 'kubectl' and 'kubernetes' in cloud_tools) or
-            (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
+          - item | basename in cloud_tools
 
       - name: Create bash completion for tools that generate configs
         shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
@@ -620,9 +625,7 @@
           - /usr/local/bin/kind
           - /usr/local/bin/skaffold
         when:
-          - item | basename in cloud_tools or
-            (item | basename == 'kubectl' and 'kubernetes' in cloud_tools) or
-            (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
+          - item | basename in cloud_tools
 
       # bash completion already installed by package
       - name: Create Azure cli zsh completion
