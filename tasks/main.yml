@@ -372,9 +372,7 @@
       - /usr/local/bin/skaffold
     when:
       - zsh_installed.stat.exists
-      - item | basename in cloud_tools or
-        (item | basename == 'kubectl' and 'kubernetes' in cloud_tools) or
-        (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
+      - item | basename in cloud_tools
 
   - name: Create bash completion for tools that generate configs
     shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
@@ -388,9 +386,7 @@
       - /usr/local/bin/kind
       - /usr/local/bin/skaffold
     when:
-      - item | basename in cloud_tools or
-        (item | basename == 'kubectl' and 'kubernetes' in cloud_tools) or
-        (item | basename == 'kubeadm' and 'kubernetes' in cloud_tools)
+      - item | basename in cloud_tools
 
   # bash completion already installed by package
   - name: Create Azure cli zsh completion

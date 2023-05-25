@@ -11,7 +11,8 @@ git_files_tracked: "/home/{{ username }}/.git-files-tracked"
 cloud_default_tools:
   - minikube
   - kind
-  - kubernetes
+  - kubectl
+  - kubeadm
   - kubectx
   - kubens
   - Kui
@@ -99,13 +100,19 @@ cloud_ppa_packages:
     key: https://apt.releases.hashicorp.com/gpg
     packages:
       - terraform
-  - name: kubernetes
+  - name: kubectl
     # Ugly - they only have a xenial version for xenial/bionic
     # TODO - handle all distros cleanly
     repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
     key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     packages:
       - kubectl
+  - name: kubeadm
+    # Ugly - they only have a xenial version for xenial/bionic
+    # TODO - handle all distros cleanly
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    packages:
       - kubeadm
   - name: azure-cli
     repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
