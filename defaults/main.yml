@@ -206,7 +206,7 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'amd64.deb')].browser_download_url"
-    tracking: '/usr/local/bin/dive wagoodman/dive /usr/local/bin/dive --version | cut -d" " -f2'
+    tracking: '/usr/bin/dive wagoodman/dive /usr/bin/dive --version | cut -d" " -f2'
   - repo: kubernetes-sigs/kind
     filename: kind
     type: exe
