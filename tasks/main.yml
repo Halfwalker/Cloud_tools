@@ -1,5 +1,15 @@
 ---
 
+- name: Assert that username and groupname are defined
+  assert:
+    that:
+      - username is defined
+      - groupname is defined
+    msg:
+      - "----------------------------------------------------------------------------------------------------"
+      - "| Must define username and groupname for file ownership tasks"
+      - "----------------------------------------------------------------------------------------------------"
+
 - become: yes
   block:
 
@@ -16,7 +26,7 @@
       path: "{{ item }}"
       state: touch
       owner: "{{ username }}"
-      group: "{{ username }}"
+      group: "{{ groupname }}"
     with_items:
       - "{{ git_repos_tracked }}"
       - "{{ git_files_tracked }}"
@@ -320,7 +330,7 @@
           src: "{{ item.src }}"
           dest: "{{ item.dest }}"
           owner: "{{ username }}"
-          group: "{{ username }}"
+          group: "{{ groupname }}"
           mode: "{{ item.mode }}"
         with_items:
           - { src: check_repos.sh.j2, dest: /usr/local/bin/check_repos.sh, mode: '0755' }
