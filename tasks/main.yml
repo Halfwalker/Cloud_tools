@@ -49,7 +49,7 @@
       path: "/home/{{ ansible_user_id }}/{{ item }}"
       state: directory
       owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
+      group: "{{ groupname }}"
       mode: '0750'
     with_items:
       - .aws
@@ -60,7 +60,7 @@
       path: "/home/{{ ansible_user_id }}/{{ item }}"
       state: directory
       owner: "{{ ansible_user_id }}"
-      group: "{{ ansible_user_id }}"
+      group: "{{ groupname }}"
       mode: '0750'
     with_items:
       - .hammer
@@ -132,7 +132,7 @@
         dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
         force: no
         owner: "{{ ansible_user_id }}"
-        group: "{{ ansible_user_id }}"
+        group: "{{ groupname }}"
         mode: "{{ item.mode }}"
       with_items: "{{ cloud_aws_configs }}"
 
@@ -271,7 +271,7 @@
           dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
           creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
           owner: "{{ ansible_user_id }}"
-          group: "{{ ansible_user_id }}"
+          group: "{{ groupname }}"
           mode: 0755
         with_items: "{{ cloud_tools_info }}"
         when:
@@ -296,7 +296,7 @@
           dest: "{{ item.1.dest }}"
           state: link
           owner: "{{ ansible_user_id }}"
-          group: "{{ ansible_user_id }}"
+          group: "{{ groupname }}"
         with_subelements:
           - "{{ cloud_git_tools }}"
           - links
