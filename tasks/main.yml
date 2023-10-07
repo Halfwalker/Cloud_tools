@@ -4,11 +4,30 @@
   assert:
     that:
       - username is defined
-      - groupname is defined
     msg:
       - "----------------------------------------------------------------------------------------------------"
-      - "| Must define username and groupname for file ownership tasks"
+      - "| Must define username for file ownership tasks"
       - "----------------------------------------------------------------------------------------------------"
+
+- when: groupname is not defined
+  block:
+    - name: Get passwd DB entry for {{ username }}
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ username }}"
+      register: user_pw
+
+    - name: Get group DB entry for {{ username }}
+      ansible.builtin.getent:
+        database: group
+        key: "{{ user_pw.ansible_facts.getent_passwd[username][2] }}"
+      register: user_gid
+
+    - name: Set groupname fact to {{ user_gid.ansible_facts.getent_group.keys()|first }}
+      set_fact:
+        groupname: "{{ user_gid.ansible_facts.getent_group.keys()|first }}"
+  #
+  # block
 
 - become: yes
   block:
