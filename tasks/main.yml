@@ -173,21 +173,27 @@
   #
   # Install tools via PPA
   #
-  - name: Add repo key for PPA
-    apt_key:
-      url: "{{ item.key }}"
+  - name: Add APT repository if required
+    ansible.builtin.deb822_repository:
+      name: "{{ item.repo_name }}"
+      types: deb
+      uris: "{{ item.repo }}"
+      signed_by: " {{ item.key }}"
+      suites: "{{ item.suite }}"
+      components: "{{ item.component | default(omit) }}"
+      architectures: amd64
       state: present
+      enabled: yes
     loop: "{{ cloud_ppa_packages }}"
     when: item.name in cloud_tools
+    register: add_deb822
 
-  - name: Install repo for PPA
-    apt_repository:
-      repo: "{{ item.repo }}"
-      state: present
+  # add_deb822 has a list of "- ansible_loop_var: item" for each loop
+  # Sets an overall changed: true if any item changed
+  - name: Update APT cache
+    ansible.builtin.apt:
       update_cache: yes
-    # with_items: "{{ cloud_ppa_packages }}"
-    loop: "{{ cloud_ppa_packages }}"
-    when: item.name in cloud_tools
+    when: add_deb822.changed
 
   - name: Install tool(s) from PPA
     apt:
@@ -213,8 +219,8 @@
   #
   # Tools from github
   #
-  - debug:
-      msg: "vault.user {{ vault_github_auth.name }} vault.token {{ vault_github_auth.token }} GH_USER {{ lookup('env', 'GH_USER') | default(omit) }} GH_TOKEN {{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+  # - debug:
+  #     msg: "vault.user {{ vault_github_auth.name }} vault.token {{ vault_github_auth.token }} GH_USER {{ lookup('env', 'GH_USER') | default(omit) }} GH_TOKEN {{ lookup('env', 'GH_TOKEN') | default(omit) }}"
 
   - name: Get latest release for each git package in cloud_tools
     uri:
