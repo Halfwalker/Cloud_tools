@@ -16,7 +16,7 @@ workspace:
 
 steps:
   - name: Lint
-    image: quay.io/halfwalker/toolset
+    image: quay.io/halfwalker/toolset2
     pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2204
@@ -25,7 +25,7 @@ steps:
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset
+    image: quay.io/halfwalker/toolset2
     environment:
       MOLECULE_DISTRO: ubuntu2204
       GH_USER:
@@ -66,7 +66,7 @@ workspace:
 
 steps:
   - name: Lint
-    image: quay.io/halfwalker/toolset
+    image: quay.io/halfwalker/toolset2
     pull: if-not-exists
     environment:
       MOLECULE_DISTRO: ubuntu2004
@@ -75,7 +75,7 @@ steps:
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset
+    image: quay.io/halfwalker/toolset2
     environment:
       MOLECULE_DISTRO: ubuntu2004
       GH_USER:
@@ -116,14 +116,14 @@ workspace:
 
 steps:
   - name: Lint
-    image: quay.io/halfwalker/toolset
+    image: quay.io/halfwalker/toolset2
     pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset
+    image: quay.io/halfwalker/toolset2
     environment:
       MOLECULE_DISTRO: ubuntu1804
       GH_USER:
