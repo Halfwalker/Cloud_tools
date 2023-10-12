@@ -11,12 +11,15 @@
         name: testing
         comment: Test user for cloud_tools
 
-    - name: Install ZSH
+    # python3-debian Required for deb822_repository tasks
+    - name: Install ZSH and python3-debian
       apt:
         state: present
+        install_recommends: no
         update_cache: yes
         name:
           - zsh
+          - python3-debian
 
     - name: Create blank /root/.zshrc
       file:
