@@ -39,7 +39,7 @@
     when: force_update
     with_items: "{{ cloud_aws_configs }}"
 
-  # changed_when: false so idepmpotence works
+  # changed_when: false so idempotence works
   - name: Ensure git repo tracking list files exist
     file:
       path: "{{ item }}"
@@ -177,9 +177,9 @@
     ansible.builtin.deb822_repository:
       name: "{{ item.repo_name }}"
       types: deb
-      uris: "{{ item.repo }}"
+      uris: "[{{ item.uris}}]"
       signed_by: " {{ item.key }}"
-      suites: "{{ item.suite }}"
+      suites: "[{{ item.suites }}]"
       components: "{{ item.component | default(omit) }}"
       architectures: amd64
       state: present

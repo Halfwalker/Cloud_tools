@@ -92,17 +92,17 @@ cloud_aws_configs:
 cloud_ppa_packages:
   - name: vault
     repo_name: hashicorp
-    repo: https://apt.releases.hashicorp.com
+    uris: https://apt.releases.hashicorp.com
     key: https://apt.releases.hashicorp.com/gpg
-    suite: "{{ ansible_distribution_release | lower }}"
+    suites: "{{ ansible_distribution_release | lower }}"
     component: main
     packages:
       - vault
   - name: terraform
     repo_name: hashicorp
-    repo: https://apt.releases.hashicorp.com
+    uris: https://apt.releases.hashicorp.com
     key: https://apt.releases.hashicorp.com/gpg
-    suite: "{{ ansible_distribution_release | lower }}"
+    suites: "{{ ansible_distribution_release | lower }}"
     component: main
     packages:
       - terraform
@@ -110,10 +110,10 @@ cloud_ppa_packages:
     # Ugly - they only have a xenial version for xenial/bionic
     # TODO - handle all distros cleanly
     repo_name: kubernetes
-    repo: https://apt.kubernetes.io
+    uris: https://apt.kubernetes.io
     key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     # key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
-    suite: kubernetes-xenial
+    suites: kubernetes-xenial
     component: main
     packages:
       - kubectl
@@ -121,26 +121,26 @@ cloud_ppa_packages:
     # Ugly - they only have a xenial version for xenial/bionic
     # TODO - handle all distros cleanly
     repo_name: kubernetes
-    repo: https://apt.kubernetes.io
+    uris: https://apt.kubernetes.io
     key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     # key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
-    suite: kubernetes-xenial
+    suites: kubernetes-xenial
     component: main
     packages:
       - kubeadm
   - name: azure-cli
     repo_name: azure
-    repo: https://packages.microsoft.com/repos/azure-cli
+    uris: https://packages.microsoft.com/repos/azure-cli
     key: https://packages.microsoft.com/keys/microsoft.asc
-    suite: "{{ ansible_distribution_release | lower }}"
+    suites: "{{ ansible_distribution_release | lower }}"
     component: main
     packages:
       - azure-cli
   - name: helm
     repo_name: helm
-    repo: https://baltocdn.com/helm/stable/debian
+    uris: https://baltocdn.com/helm/stable/debian
     key: https://baltocdn.com/helm/signing.asc
-    suite: all
+    suites: all
     component: main
     packages:
       - helm
@@ -152,11 +152,11 @@ cloud_ppa_packages:
     #       to do an override, using the focal version for jammy.  Other distros
     #       work fine, so we use their native PPA version.  See cloud_distro_override
     #       above.
-    # repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+    # uris: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
     repo_name: foreman
-    repo: http://deb.theforeman.org
+    uris: http://deb.theforeman.org
     key: https://deb.theforeman.org/pubkey.gpg
-    suite: "{{ cloud_distro_override.hammer[ansible_distribution_release] }}"
+    suites: "{{ cloud_distro_override.hammer[ansible_distribution_release] }}"
     component: 2.5
     packages:
       - ruby-hammer-cli
