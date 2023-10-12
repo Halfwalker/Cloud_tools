@@ -28,15 +28,16 @@ provisioner:
     GH_TOKEN: ${GH_TOKEN:-""}
 
 verifier:
-  name: goss
-  env:
-    GH_USER: ${GH_USER:-""}
-    GH_TOKEN: ${GH_TOKEN:-""}
+  name: testinfra
+  # name: goss
+  # env:
+  #   GH_USER: ${GH_USER:-""}
+  #   GH_TOKEN: ${GH_TOKEN:-""}
 
 scenario:
   name: default
   test_sequence:
-    - lint
+    # - lint    # causes molecule test to error out - meh we lint in drone anyway
     - destroy
     # - dependency
     - syntax
