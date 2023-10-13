@@ -49,7 +49,7 @@
     with_items:
       - "{{ git_repos_tracked }}"
       - "{{ git_files_tracked }}"
-    become_user: "{{ username }}"
+    # become_user: "{{ username }}"
     changed_when: false
 
   # dlayer Appears to be a dead project
