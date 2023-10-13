@@ -17,8 +17,8 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     "kubectl",
     "azure-cli",
     "helm",
-    "ruby-hammer-cli",
-    "ruby-hammer-cli-foreman",
+    # "ruby-hammer-cli",
+    # "ruby-hammer-cli-foreman",
     "vault",
 ])
 
@@ -57,6 +57,21 @@ def test_files(host, name):
     assert f.group == all_variables['groupname']
 
 
+# These are owned by root:user-group
+@pytest.mark.parametrize("name", [
+    '/usr/local/bin/eksctl',
+    '/usr/local/bin/drone',
+])
+
+def test_files_root_group(host, name):
+    all_variables = host.ansible.get_variables()
+    f = host.file(name)
+
+    assert f.is_file
+    assert f.user == 'root'
+    assert f.group == all_variables['groupname']
+
+
 # These are root:root
 @pytest.mark.parametrize("name", [
     '/usr/local/bin/dlayer',
@@ -71,12 +86,10 @@ def test_files(host, name):
     '/usr/local/bin/docker-machine',
     '/usr/local/bin/docker-compose',
     '/usr/bin/dive',
-    '/usr/local/bin/drone',
     '/usr/local/bin/gimme-aws-creds',
     '/usr/local/bin/ecs-cli',
-    '/usr/local/bin/eksctl',
     '/usr/bin/az',
-    '/usr/bin/hammer',
+    # '/usr/bin/hammer',
     '/etc/bash_completion.d/_kubectl',
     '/etc/bash_completion.d/_kubeadm',
     '/etc/bash_completion.d/_minikube',
@@ -100,7 +113,6 @@ def test_files_root(host, name):
 
 
 @pytest.mark.parametrize("directory", [
-    '/usr/local/share/kubetools',
     '/usr/local/share/Kui-linux-x64',
 ])
 
@@ -110,7 +122,20 @@ def test_dirs(host, directory):
 
     assert f.is_directory
     assert f.user == 'root'
+    assert f.group == all_variables['groupname']
+
+@pytest.mark.parametrize("directory", [
+    '/usr/local/share/kubetools',
+])
+
+def test_dirs_root(host, directory):
+    all_variables = host.ansible.get_variables()
+    f = host.file(directory)
+
+    assert f.is_directory
+    assert f.user == 'root'
     assert f.group == 'root'
+
 
 
 @pytest.mark.parametrize("symlink", [

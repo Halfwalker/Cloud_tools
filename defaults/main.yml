@@ -26,6 +26,7 @@ cloud_default_tools:
   - ecs-cli
   - eksctl
   - azure-cli
+  # Disabled for now - also check molecule/default/tests/test_default.py
   # - hammer
   - drone
   - vault
