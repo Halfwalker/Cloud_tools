@@ -26,7 +26,7 @@ cloud_default_tools:
   - ecs-cli
   - eksctl
   - azure-cli
-  - hammer
+  # - hammer
   - drone
   - vault
   - terraform
