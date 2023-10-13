@@ -188,7 +188,7 @@
       name: "{{ item.item.repo_name }}"
       types: deb
       uris: "{{ item.item.uris}}"
-      signed_by: " {{ item.item.key }}"
+      signed_by: "{{ item.item.key }}"
       suites: "{{ item.item.suites }}"
       components: "{{ item.item.component | default(omit) }}"
       architectures: amd64
