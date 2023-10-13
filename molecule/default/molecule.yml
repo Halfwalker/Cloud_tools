@@ -5,7 +5,7 @@ driver:
   name: docker
 platforms:
   - name: "${DRONE_REPO_NAME}-${MOLECULE_DISTRO:-ubuntu2004}"
-    image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    image: "docker.io/geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -14,6 +14,13 @@ platforms:
 
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      interpreter_python: auto_silent
+      callback_whitelist: profile_tasks, timer, yaml
+  # For podman - https://www.ansible.com/blog/developing-and-testing-ansible-roles-with-molecule-and-podman-part-1
+  #   ssh_connection:
+  #     pipelining: false
   inventory:
     group_vars:
       all:
