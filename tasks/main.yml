@@ -34,7 +34,7 @@
 
   - name: Remove existing config files if force_update == true
     file:
-      path: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
+      path: /home/{{ username }}/.aws/{{ item.dest }}
       state: absent
     when: force_update
     with_items: "{{ cloud_aws_configs }}"
@@ -65,9 +65,9 @@
 
   - name: Ensure AWS config dirs are there
     file:
-      path: "/home/{{ ansible_user_id }}/{{ item }}"
+      path: "/home/{{ username }}/{{ item }}"
       state: directory
-      owner: "{{ ansible_user_id }}"
+      owner: "{{ username }}"
       group: "{{ groupname }}"
       mode: '0750'
     with_items:
@@ -76,9 +76,9 @@
 
   - name: Ensure puppet/hammer config dirs are there
     file:
-      path: "/home/{{ ansible_user_id }}/{{ item }}"
+      path: "/home/{{ username }}/{{ item }}"
       state: directory
-      owner: "{{ ansible_user_id }}"
+      owner: "{{ username }}"
       group: "{{ groupname }}"
       mode: '0750'
     with_items:
@@ -148,9 +148,9 @@
     - name: Copy .aws configuration files if not there
       copy:
         content: "{{ item.src }}"
-        dest: /home/{{ ansible_user_id }}/.aws/{{ item.dest }}
+        dest: /home/{{ username }}/.aws/{{ item.dest }}
         force: no
-        owner: "{{ ansible_user_id }}"
+        owner: "{{ username }}"
         group: "{{ groupname }}"
         mode: "{{ item.mode }}"
       with_items: "{{ cloud_aws_configs }}"
@@ -305,7 +305,7 @@
           remote_src: yes
           dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
           creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
-          owner: "{{ ansible_user_id }}"
+          owner: "{{ username }}"
           group: "{{ groupname }}"
           mode: 0755
         with_items: "{{ cloud_tools_info }}"
@@ -330,7 +330,7 @@
           src: "{{ item.1.src }}"
           dest: "{{ item.1.dest }}"
           state: link
-          owner: "{{ ansible_user_id }}"
+          owner: "{{ username }}"
           group: "{{ groupname }}"
         with_subelements:
           - "{{ cloud_git_tools }}"
