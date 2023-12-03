@@ -23,436 +23,437 @@
         key: "{{ user_pw.ansible_facts.getent_passwd[username][2] }}"
       register: user_gid
 
-    - name: Set groupname fact to {{ user_gid.ansible_facts.getent_group.keys()|first }}
+    - name: "Set groupname fact to {{ user_gid.ansible_facts.getent_group.keys() | first }}"
       set_fact:
-        groupname: "{{ user_gid.ansible_facts.getent_group.keys()|first }}"
+        groupname: "{{ user_gid.ansible_facts.getent_group.keys() | first }}"
   #
   # block
 
 - become: yes
   block:
 
-  - name: Remove existing config files if force_update == true
-    file:
-      path: /home/{{ username }}/.aws/{{ item.dest }}
-      state: absent
-    when: force_update
-    with_items: "{{ cloud_aws_configs }}"
-
-  # changed_when: false so idempotence works
-  - name: Ensure git repo tracking list files exist
-    file:
-      path: "{{ item }}"
-      state: touch
-      owner: "{{ username }}"
-      group: "{{ groupname }}"
-    with_items:
-      - "{{ git_repos_tracked }}"
-      - "{{ git_files_tracked }}"
-    # become_user: "{{ username }}"
-    changed_when: false
-
-  # dlayer Appears to be a dead project
-  # https://github.com/wercker/dlayer
-  # Binary still works though, so could be put elsewhere
-  - name: Copy dlayer analyzer
-    copy:
-      src: "{{ item.src }}"
-      dest: "{{ item.dest }}"
-      mode: "{{ item.mode }}"
-    with_items:
-      - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
-
-  - name: Ensure AWS config dirs are there
-    file:
-      path: "/home/{{ username }}/{{ item }}"
-      state: directory
-      owner: "{{ username }}"
-      group: "{{ groupname }}"
-      mode: '0750'
-    with_items:
-      - .aws
-    when: '"awscli" in cloud_tools or "gimme-aws-creds" in cloud_tools'
-
-  - name: Ensure puppet/hammer config dirs are there
-    file:
-      path: "/home/{{ username }}/{{ item }}"
-      state: directory
-      owner: "{{ username }}"
-      group: "{{ groupname }}"
-      mode: '0750'
-    with_items:
-      - .hammer
-    when: '"hammer" in cloud_tools'
-
-  - name: Ensure bash_completion.d dir is there
-    file:
-      path: /etc/bash_completion.d
-      state: directory
-      owner: root
-      group: root
-      mode: '0755'
-
-  # https repos won't go through apt-cacher, so bypass them
-  # NOTE: This has url patterns matching https repos from below
-  - name: Copy apt config to bypass any apt-cacher-ng or other proxy
-    copy:
-      content: |
-        # apt-cacher-ng doesn't like going through ssl
-        Acquire::https::Proxy::packages.microsoft.com "DIRECT";
-        Acquire::https::Proxy::baltocdn.com "DIRECT";
-        Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
-        Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
-      dest: /etc/apt/apt.conf.d/11cloud_tools
-      mode: '0644'
-
-  - name: Install prerequisite tools
-    apt:
-      state: present
-      install_recommends: no
-      update_cache: yes
-      name: "{{ cloud_prereq_packages.common + cloud_prereq_packages[ansible_distribution_release] }}"
-
-
-  #
-  # Install tools via python pip
-  #
-  # Stupid ansible - can't just pass a with_items list into apt now, have to
-  # have all the pkgs right on the name: line.  So here we build a variable
-  # to hold the list of pkgs that are in the cloud_tools var
-  - name: Build list of pip  packages to install
-    set_fact:
-      packages_via_pip: "{{ packages_via_pip | default([]) + [item] }}"
-    with_items: "{{ cloud_pip_packages }}"
-    when: item in cloud_tools
-
-  # Only run when NOT in check mode, as python pkg_resources may not yet
-  # have been installed
-  - name: Install packages via pip
-    pip:
-      name: "{{ packages_via_pip }}"
-      state: present
-      extra_args: "--upgrade"
-    when:
-      - packages_via_pip is defined
-      - packages_via_pip | length > 0
-      - not ansible_check_mode
-
-
-  #
-  # Install awscli v2
-  #
-  - when: '"awscli" in cloud_tools'
-    block:
-    #
-    - name: Copy .aws configuration files if not there
-      copy:
-        content: "{{ item.src }}"
-        dest: /home/{{ username }}/.aws/{{ item.dest }}
-        force: no
+    - name: Remove existing config files if force_update == true
+      file:
+        path: /home/{{ username }}/.aws/{{ item.dest }}
+        state: absent
+      when: force_update
+      with_items: "{{ cloud_aws_configs }}"
+  
+    # changed_when: false so idempotence works
+    - name: Ensure git repo tracking list files exist
+      file:
+        path: "{{ item }}"
+        state: touch
         owner: "{{ username }}"
         group: "{{ groupname }}"
+      with_items:
+        - "{{ git_repos_tracked }}"
+        - "{{ git_files_tracked }}"
+      # become_user: "{{ username }}"
+      changed_when: false
+  
+    # dlayer Appears to be a dead project
+    # https://github.com/wercker/dlayer
+    # Binary still works though, so could be put elsewhere
+    - name: Copy dlayer analyzer
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
         mode: "{{ item.mode }}"
-      with_items: "{{ cloud_aws_configs }}"
-
-    - name: Fetch awscli v2 latest
-      unarchive:
-        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
-        remote_src: yes
-        dest: "/tmp"
-        creates: "/tmp/aws"
-
-    - name: Install awscli v2
-      command: /tmp/aws/install
-      args:
-        creates: /usr/local/bin/aws
+      with_items:
+        - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
+  
+    - name: Ensure AWS config dirs are there
+      file:
+        path: "/home/{{ username }}/{{ item }}"
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ groupname }}"
+        mode: '0750'
+      with_items:
+        - .aws
+      when: '"awscli" in cloud_tools or "gimme-aws-creds" in cloud_tools'
+  
+    - name: Ensure puppet/hammer config dirs are there
+      file:
+        path: "/home/{{ username }}/{{ item }}"
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ groupname }}"
+        mode: '0750'
+      with_items:
+        - .hammer
+      when: '"hammer" in cloud_tools'
+  
+    - name: Ensure bash_completion.d dir is there
+      file:
+        path: /etc/bash_completion.d
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+  
+    # https repos won't go through apt-cacher, so bypass them
+    # NOTE: This has url patterns matching https repos from below
+    - name: Copy apt config to bypass any apt-cacher-ng or other proxy
+      copy:
+        content: |
+          # apt-cacher-ng doesn't like going through ssl
+          Acquire::https::Proxy::packages.microsoft.com "DIRECT";
+          Acquire::https::Proxy::baltocdn.com "DIRECT";
+          Acquire::https::Proxy::apt.kubernetes.io "DIRECT";
+          Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
+        dest: /etc/apt/apt.conf.d/11cloud_tools
+        mode: '0644'
+  
+    - name: Install prerequisite tools
+      apt:
+        state: present
+        install_recommends: no
+        update_cache: yes
+        name: "{{ cloud_prereq_packages.common + cloud_prereq_packages[ansible_distribution_release] }}"
+  
+  
     #
-    # block
-
-
-  #
-  # Install tools via PPA
-  #
-  - name: Check if APT repository already there
-    stat:
-      path: "/etc/apt/sources.list.d/{{ item.repo_name }}.sources"
-    loop: "{{ cloud_ppa_packages }}"
-    register: repo_check
-    when: item.name in cloud_tools
-    check_mode: no
-
-  # Now loop over the repo_check.results since that has each of the cloud_ppa_packages
-  # dicts in it, under "item".  Hence the weird looking item.item.repo_name here.
-  - name: Add APT repository if required
-    ansible.builtin.deb822_repository:
-      name: "{{ item.item.repo_name }}"
-      types: deb
-      uris: "{{ item.item.uris}}"
-      signed_by: "{{ item.item.key }}"
-      suites: "{{ item.item.suites }}"
-      components: "{{ item.item.component | default(omit) }}"
-      architectures: amd64
-      state: present
-      enabled: yes
-    loop: "{{ repo_check.results }}"
-    when: item.item.name in cloud_tools and not item.stat.exists
-    register: add_deb822
-
-  # add_deb822 has a list of "- ansible_loop_var: item" for each loop
-  # Sets an overall changed: true if any item changed
-  - name: Update APT cache
-    ansible.builtin.apt:
-      update_cache: yes
-    when: add_deb822.changed
-
-  - name: Install tool(s) from PPA
-    apt:
-      state: present
-      install_recommends: no
-      name: "{{ item.packages }}"
-    loop: "{{ cloud_ppa_packages }}"
-    when: item.name in cloud_tools
-
-
-  #
-  # Install binary tools directly
-  #
-  - name: Add binary tool
-    get_url:
-      url: "{{ item.url }}"
-      dest: "{{ item.dest }}"
-      mode: 0755
-    with_items: "{{ cloud_binary_tools }}"
-    when: item.name in cloud_tools
-
-
-  #
-  # Tools from github
-  #
-  # - debug:
-  #     msg: "vault.user {{ vault_github_auth.name }} vault.token {{ vault_github_auth.token }} GH_USER {{ lookup('env', 'GH_USER') | default(omit) }} GH_TOKEN {{ lookup('env', 'GH_TOKEN') | default(omit) }}"
-
-  - name: Get latest release for each git package in cloud_tools
-    uri:
-      url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
-      method: GET
-      return_content: true
-      status_code: 200
-      body_format: json
-      validate_certs: false
-      user: "{{ vault_github_auth.name | default(omit) }}"
-      password: "{{ vault_github_auth.token | default(omit) }}"
-      force_basic_auth: "{% if vault_github_auth is defined %}yes{% else %}no{% endif %}"
-    register: cloud_git_releases
-    until: cloud_git_releases.status == 200
-    retries: 5
-    with_items: "{{ cloud_git_tools }}"
-    when: item.filename in cloud_tools
-    check_mode: no
-
-  - name: Build list of tools, versions, urls
-    set_fact:
-      cloud_tools_info: "{{ cloud_tools_info | default([]) + [cloud_tools_template] }}"
-    with_together:
-      - "{{ cloud_git_releases.results }}"
-      - "{{ cloud_git_tools }}"
-    when:
-      - cloud_git_releases is defined
-      - item.1.filename in cloud_tools
-    check_mode: no
-
-  - when: cloud_tools_info is defined
-    block:
-      - name: Install tool executables to /usr/local/bin
-        get_url:
-          url: "{{ item.url[0] }}"
-          dest: "/usr/local/bin/{{ item.filename }}"
-          mode: 0755
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.type == "exe"
-          - item.filename in cloud_tools
-
-      # NOTE: unarchive downloading from a remote url does not support username/password
-      #       so we may run into github rate limiting
-      #       Alternative is to use get_url first to pull the archive file (with auth)
-      #       and then unpack it
-      - name: git - Download archive type packages
-        get_url:
-          url: "{{ item.url[0] }}"
-          dest: "/tmp/{{ item.url[0] | basename }}"
-          url_username: "{{ lookup('env', 'GH_USER') | default(omit) }}"
-          url_password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
-          mode: 0755
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.filename in cloud_tools
-          - item.type == "archive"
-
-      - name: git - Pre-create unpack dir
-        file:
-          path: "{{ item.unpack }}"
-          state: directory
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.filename in cloud_tools
-          - item.type == "archive"
-          - item.unpack is defined
-
-      - name: git - Install archive type packages
-        unarchive:
-          src: "/tmp/{{ item.url[0] | basename }}"
-          remote_src: yes
-          dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
-          creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
-          owner: "{{ username }}"
-          group: "{{ groupname }}"
-          mode: 0755
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.filename in cloud_tools
-          - item.type == "archive"
-
-      - name: git - Pre-create dirs for links
-        file:
-          path: "{{ item.1.dest | dirname }}"
-          state: directory
-        with_subelements:
-          - "{{ cloud_git_tools }}"
-          - links
-          - skip_missing: true
-        when: item.0.filename in cloud_tools
-
-      # NOTE: this task will fail in check mode since it depends on the src
-      #       files existing from being unpacked by tasks above
-      - name: git - Create links from downloaded git stuffs
-        file:
-          src: "{{ item.1.src }}"
-          dest: "{{ item.1.dest }}"
-          state: link
-          owner: "{{ username }}"
-          group: "{{ groupname }}"
-        with_subelements:
-          - "{{ cloud_git_tools }}"
-          - links
-          - skip_missing: true
-        when: item.0.filename in cloud_tools
-
-      - name: Install deb packages
-        apt:
-          deb: "{{ item.url[0] }}"
-        with_items: "{{ cloud_tools_info }}"
-        when:
-          - item.type == "deb"
-          - item.filename in cloud_tools
-
-      - name: Ensure each repo location in other tracking file
-        lineinfile:
-          dest: "{{ git_files_tracked }}"
-          line: "{{ item.tracking }}"
-          state: present
-        become_user: "{{ username }}"
-        with_items: "{{ cloud_git_tools }}"
-        when:
-          - item.type == "exe" or item.type == "archive" or item.type == "deb"
-          - item.filename in cloud_tools
-          - item.tracking is defined
-
-      # NOTE: This is also installed by the ansible-git_tools role
-      #       Make sure that this one matches that one
-      - name: Copy check_repos.sh script
-        template:
-          src: "{{ item.src }}"
-          dest: "{{ item.dest }}"
-          owner: "{{ username }}"
-          group: "{{ groupname }}"
-          mode: "{{ item.mode }}"
-        with_items:
-          - { src: check_repos.sh.j2, dest: /usr/local/bin/check_repos.sh, mode: '0755' }
-
-    # block
-
-
-  #
-  # Install shell completions
-  # Will only work if bash-completion is installed for bash
-  #
-  - name: Check if zsh available
-    stat:
-      path: /usr/bin/zsh
-    register: zsh_installed
-    check_mode: no
-
-  - name: Fetch zsh completion for the tools
-    get_url:
-      url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/zsh/{{ item.completion_zsh }}
-      dest: /usr/share/zsh/vendor-completions/{{ item.completion_zsh }}
-    with_items:
-      - "{{ cloud_git_tools }}"
-    when:
-      - item.completion_zsh != "NONE"
-      - zsh_installed.stat.exists
-      - item.filename in cloud_tools
-
-  - name: Fetch bash completion for the tools
-    get_url:
-      url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion_bash }}
-      dest: /etc/bash_completion.d/{{ item.completion_bash }}
-    with_items:
-      - "{{ cloud_git_tools }}"
-    when:
-      - item.completion_bash != "NONE"
-      - item.filename in cloud_tools
-
-  - name: Create zsh completion for tools that generate configs
-    shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
-    args:
-      creates: "/usr/share/zsh/vendor-completions/_{{ item | basename }}"
-    with_items:
-      - /usr/bin/kubectl
-      - /usr/bin/kubeadm
-      - /usr/local/bin/minikube
-      - /usr/local/bin/eksctl
-      - /usr/local/bin/kind
-      - /usr/local/bin/skaffold
-    when:
-      - zsh_installed.stat.exists
-      - item | basename in cloud_tools
-
-  - name: Create bash completion for tools that generate configs
-    shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
-    args:
-      creates: "/etc/bash_completion.d/_{{ item | basename }}"
-    with_items:
-      - /usr/bin/kubectl
-      - /usr/bin/kubeadm
-      - /usr/local/bin/minikube
-      - /usr/local/bin/eksctl
-      - /usr/local/bin/kind
-      - /usr/local/bin/skaffold
-    when:
-      - item | basename in cloud_tools
-
-  # bash completion already installed by package
-  - name: Create Azure cli zsh completion
-    file:
-      src: /etc/bash_completion.d/azure-cli
-      dest: /usr/share/zsh/vendor-completions/_azure-cli
-      state: link
-      force: yes
-    when:
-      - zsh_installed.stat.exists
-      - '"azure-cli" in cloud_tools'
-
-  - name: Create AWS cli bash completion
-    copy:
-      dest: /etc/bash_completion.d/_aws
-      force: yes
-      mode: 0644
-      content: |
-        complete -C '/usr/local/bin/aws_completer' aws
-    when:
-      - '"awscli" in cloud_tools'
+    # Install tools via python pip
+    #
+    # Stupid ansible - can't just pass a with_items list into apt now, have to
+    # have all the pkgs right on the name: line.  So here we build a variable
+    # to hold the list of pkgs that are in the cloud_tools var
+    - name: Build list of pip  packages to install
+      set_fact:
+        packages_via_pip: "{{ packages_via_pip | default([]) + [item] }}"
+      with_items: "{{ cloud_pip_packages }}"
+      when: item in cloud_tools
+  
+    # Only run when NOT in check mode, as python pkg_resources may not yet
+    # have been installed
+    - name: Install packages via pip
+      pip:
+        name: "{{ packages_via_pip }}"
+        state: present
+        extra_args: "--upgrade"
+      when:
+        - packages_via_pip is defined
+        - packages_via_pip | length > 0
+        - not ansible_check_mode
+  
+  
+    #
+    # Install awscli v2
+    #
+    - when: '"awscli" in cloud_tools'
+      block:
+        #
+        - name: Copy .aws configuration files if not there
+          copy:
+            content: "{{ item.src }}"
+            dest: /home/{{ username }}/.aws/{{ item.dest }}
+            force: no
+            owner: "{{ username }}"
+            group: "{{ groupname }}"
+            mode: "{{ item.mode }}"
+          with_items: "{{ cloud_aws_configs }}"
+  
+        - name: Fetch awscli v2 latest
+          unarchive:
+            src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+            remote_src: yes
+            dest: "/tmp"
+            creates: "/tmp/aws"
+  
+        - name: Install awscli v2
+          command: /tmp/aws/install
+          args:
+            creates: /usr/local/bin/aws
+      #
+      # block
+  
+  
+    #
+    # Install tools via PPA
+    #
+    - name: Check if APT repository already there
+      stat:
+        path: "/etc/apt/sources.list.d/{{ item.repo_name }}.sources"
+      loop: "{{ cloud_ppa_packages }}"
+      register: repo_check
+      when: item.name in cloud_tools
+      check_mode: no
+  
+    # Now loop over the repo_check.results since that has each of the cloud_ppa_packages
+    # dicts in it, under "item".  Hence the weird looking item.item.repo_name here.
+    - name: Add APT repository if required
+      ansible.builtin.deb822_repository:
+        name: "{{ item.item.repo_name }}"
+        types: deb
+        uris: "{{ item.item.uris }}"
+        signed_by: "{{ item.item.key }}"
+        suites: "{{ item.item.suites }}"
+        components: "{{ item.item.component | default(omit) }}"
+        architectures: amd64
+        state: present
+        enabled: yes
+      loop: "{{ repo_check.results }}"
+      when: item.item.name in cloud_tools and not item.stat.exists
+      register: add_deb822
+  
+    # add_deb822 has a list of "- ansible_loop_var: item" for each loop
+    # Sets an overall changed: true if any item changed
+    - name: Update APT cache # noqa no-handler 
+      ansible.builtin.apt:
+        update_cache: yes
+      when: add_deb822.changed
+  
+    - name: Install tool(s) from PPA
+      apt:
+        state: present
+        install_recommends: no
+        name: "{{ item.packages }}"
+      loop: "{{ cloud_ppa_packages }}"
+      when: item.name in cloud_tools
+  
+  
+    #
+    # Install binary tools directly
+    #
+    - name: Add binary tool
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+        mode: 0755
+      with_items: "{{ cloud_binary_tools }}"
+      when: item.name in cloud_tools
+  
+  
+    #
+    # Tools from github
+    #
+    # - debug:
+    #     msg: "vault.user {{ vault_github_auth.name }} vault.token {{ vault_github_auth.token }} GH_USER {{ lookup('env', 'GH_USER') | default(omit) }} GH_TOKEN {{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+  
+    - name: Get latest release for each git package in cloud_tools
+      uri:
+        url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+        validate_certs: false
+        user: "{{ vault_github_auth.name | default(omit) }}"
+        password: "{{ vault_github_auth.token | default(omit) }}"
+        force_basic_auth: "{% if vault_github_auth is defined %}yes{% else %}no{% endif %}"
+      register: cloud_git_releases
+      until: cloud_git_releases.status == 200
+      retries: 5
+      with_items: "{{ cloud_git_tools }}"
+      when: item.filename in cloud_tools
+      check_mode: no
+  
+    - name: Build list of tools, versions, urls
+      set_fact:
+        cloud_tools_info: "{{ cloud_tools_info | default([]) + [cloud_tools_template] }}"
+      with_together:
+        - "{{ cloud_git_releases.results }}"
+        - "{{ cloud_git_tools }}"
+      when:
+        - cloud_git_releases is defined
+        - item.1.filename in cloud_tools
+      check_mode: no
+  
+    - when: cloud_tools_info is defined
+      block:
+        - name: Install tool executables to /usr/local/bin
+          get_url:
+            url: "{{ item.url[0] }}"
+            dest: "/usr/local/bin/{{ item.filename }}"
+            mode: 0755
+          with_items: "{{ cloud_tools_info }}"
+          when:
+            - item.type == "exe"
+            - item.filename in cloud_tools
+  
+        # NOTE: unarchive downloading from a remote url does not support username/password
+        #       so we may run into github rate limiting
+        #       Alternative is to use get_url first to pull the archive file (with auth)
+        #       and then unpack it
+        - name: git - Download archive type packages
+          get_url:
+            url: "{{ item.url[0] }}"
+            dest: "/tmp/{{ item.url[0] | basename }}"
+            url_username: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+            url_password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+            mode: 0755
+          with_items: "{{ cloud_tools_info }}"
+          when:
+            - item.filename in cloud_tools
+            - item.type == "archive"
+  
+        - name: git - Pre-create unpack dir
+          file:
+            path: "{{ item.unpack }}"
+            state: directory
+          with_items: "{{ cloud_tools_info }}"
+          when:
+            - item.filename in cloud_tools
+            - item.type == "archive"
+            - item.unpack is defined
+  
+        - name: git - Install archive type packages
+          unarchive:
+            src: "/tmp/{{ item.url[0] | basename }}"
+            remote_src: yes
+            dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
+            creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
+            owner: "{{ username }}"
+            group: "{{ groupname }}"
+            mode: 0755
+          with_items: "{{ cloud_tools_info }}"
+          when:
+            - item.filename in cloud_tools
+            - item.type == "archive"
+  
+        - name: git - Pre-create dirs for links
+          file:
+            path: "{{ item.1.dest | dirname }}"
+            state: directory
+          with_subelements:
+            - "{{ cloud_git_tools }}"
+            - links
+            - skip_missing: true
+          when: item.0.filename in cloud_tools
+  
+        # NOTE: this task will fail in check mode since it depends on the src
+        #       files existing from being unpacked by tasks above
+        - name: git - Create links from downloaded git stuffs
+          file:
+            src: "{{ item.1.src }}"
+            dest: "{{ item.1.dest }}"
+            state: link
+            owner: "{{ username }}"
+            group: "{{ groupname }}"
+          with_subelements:
+            - "{{ cloud_git_tools }}"
+            - links
+            - skip_missing: true
+          when: item.0.filename in cloud_tools
+  
+        - name: Install deb packages
+          apt:
+            deb: "{{ item.url[0] }}"
+          with_items: "{{ cloud_tools_info }}"
+          when:
+            - item.type == "deb"
+            - item.filename in cloud_tools
+  
+        - name: Ensure each repo location in other tracking file
+          lineinfile:
+            dest: "{{ git_files_tracked }}"
+            line: "{{ item.tracking }}"
+            state: present
+          become: yes
+          become_user: "{{ username }}"
+          with_items: "{{ cloud_git_tools }}"
+          when:
+            - item.type == "exe" or item.type == "archive" or item.type == "deb"
+            - item.filename in cloud_tools
+            - item.tracking is defined
+  
+        # NOTE: This is also installed by the ansible-git_tools role
+        #       Make sure that this one matches that one
+        - name: Copy check_repos.sh script
+          template:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: "{{ username }}"
+            group: "{{ groupname }}"
+            mode: "{{ item.mode }}"
+          with_items:
+            - { src: check_repos.sh.j2, dest: /usr/local/bin/check_repos.sh, mode: '0755' }
+  
+      # block
+  
+  
+    #
+    # Install shell completions
+    # Will only work if bash-completion is installed for bash
+    #
+    - name: Check if zsh available
+      stat:
+        path: /usr/bin/zsh
+      register: zsh_installed
+      check_mode: no
+  
+    - name: Fetch zsh completion for the tools
+      get_url:
+        url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/zsh/{{ item.completion_zsh }}
+        dest: /usr/share/zsh/vendor-completions/{{ item.completion_zsh }}
+      with_items:
+        - "{{ cloud_git_tools }}"
+      when:
+        - item.completion_zsh != "NONE"
+        - zsh_installed.stat.exists
+        - item.filename in cloud_tools
+  
+    - name: Fetch bash completion for the tools
+      get_url:
+        url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion_bash }}
+        dest: /etc/bash_completion.d/{{ item.completion_bash }}
+      with_items:
+        - "{{ cloud_git_tools }}"
+      when:
+        - item.completion_bash != "NONE"
+        - item.filename in cloud_tools
+  
+    - name: Create zsh completion for tools that generate configs
+      shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
+      args:
+        creates: "/usr/share/zsh/vendor-completions/_{{ item | basename }}"
+      with_items:
+        - /usr/bin/kubectl
+        - /usr/bin/kubeadm
+        - /usr/local/bin/minikube
+        - /usr/local/bin/eksctl
+        - /usr/local/bin/kind
+        - /usr/local/bin/skaffold
+      when:
+        - zsh_installed.stat.exists
+        - item | basename in cloud_tools
+  
+    - name: Create bash completion for tools that generate configs
+      shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
+      args:
+        creates: "/etc/bash_completion.d/_{{ item | basename }}"
+      with_items:
+        - /usr/bin/kubectl
+        - /usr/bin/kubeadm
+        - /usr/local/bin/minikube
+        - /usr/local/bin/eksctl
+        - /usr/local/bin/kind
+        - /usr/local/bin/skaffold
+      when:
+        - item | basename in cloud_tools
+  
+    # bash completion already installed by package
+    - name: Create Azure cli zsh completion
+      file:
+        src: /etc/bash_completion.d/azure-cli
+        dest: /usr/share/zsh/vendor-completions/_azure-cli
+        state: link
+        force: yes
+      when:
+        - zsh_installed.stat.exists
+        - '"azure-cli" in cloud_tools'
+  
+    - name: Create AWS cli bash completion
+      copy:
+        dest: /etc/bash_completion.d/_aws
+        force: yes
+        mode: 0644
+        content: |
+          complete -C '/usr/local/bin/aws_completer' aws
+      when:
+        - '"awscli" in cloud_tools'
 
   #
   # block
