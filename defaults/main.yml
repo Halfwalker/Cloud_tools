@@ -3,6 +3,9 @@
 # Default to NOT force-update the config files
 force_update: false
 
+# Default username to user calling role
+username: "{{ ansible_user_id }}"
+
 # Location of cloned git repos, in case it isn't defined elsewhere
 git_repos_tracked: "/home/{{ username }}/.git-repos-tracked"
 git_files_tracked: "/home/{{ username }}/.git-files-tracked"
