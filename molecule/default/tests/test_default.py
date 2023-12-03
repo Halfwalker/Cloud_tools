@@ -46,6 +46,8 @@ def test_contains(host, name):
 
 @pytest.mark.parametrize("name", [
     "/home/testing/.git-repos-tracked",
+    '/usr/local/bin/eksctl',
+    '/usr/local/bin/drone',
 ])
 
 def test_files(host, name):
@@ -57,19 +59,17 @@ def test_files(host, name):
     assert f.group == all_variables['groupname']
 
 
-# These are owned by root:user-group
-@pytest.mark.parametrize("name", [
-    '/usr/local/bin/eksctl',
-    '/usr/local/bin/drone',
-])
+# # These are owned by root:user-group
+# @pytest.mark.parametrize("name", [
+# ])
 
-def test_files_root_group(host, name):
-    all_variables = host.ansible.get_variables()
-    f = host.file(name)
+# def test_files_root_group(host, name):
+#     all_variables = host.ansible.get_variables()
+#     f = host.file(name)
 
-    assert f.is_file
-    assert f.user == 'root'
-    assert f.group == all_variables['groupname']
+#     assert f.is_file
+#     assert f.user == 'root'
+#     assert f.group == all_variables['groupname']
 
 
 # These are root:root
@@ -121,7 +121,7 @@ def test_dirs(host, directory):
     f = host.file(directory)
 
     assert f.is_directory
-    assert f.user == 'root'
+    assert f.user == all_variables['username']
     assert f.group == all_variables['groupname']
 
 @pytest.mark.parametrize("directory", [
