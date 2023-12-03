@@ -2,15 +2,18 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: podman
 platforms:
-  - name: "${DRONE_REPO_NAME}-${MOLECULE_DISTRO:-ubuntu2004}"
-    image: "docker.io/geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+  - name: "${DRONE_REPO_NAME:-instance}-${MOLECULE_DISTRO:-ubuntu2204}"
+    image: "docker.io/geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2204}-ansible:latest"
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
     pre_build_image: true
+    network: podman_2204
+    env:
+      USER: podman
 
 provisioner:
   name: ansible
@@ -31,6 +34,7 @@ provisioner:
         username: testing
         groupname: testing
   env:
+    USER: podman
     GH_USER: ${GH_USER:-""}
     GH_TOKEN: ${GH_TOKEN:-""}
 

@@ -5,7 +5,7 @@ name: ubuntu2204
 
 # Need to define workspace as role name so molecule can find it
 workspace:
-  path: /drone/ansible-cloud_tools
+  path: /drone/${DRONE_REPO_NAME}
 
 # Have to define env variables in EACH step, not as overall pipeline
 # setup :(  Due to drone-cli using old code
@@ -15,19 +15,34 @@ workspace:
 #   MOLECULE_DISTRO: ubuntu2004
 
 steps:
+  # Skip the pipeline if only changes to README.md or non-drone control files
+  # Looking for all .yml files to trigger Lint and Test
+  - name: Skip
+    image: docker.io/halfwalker/alpineset2
+    commands:
+      # Grab the incoming commit info to see what changed
+      - test $DRONE_BUILD_EVENT = pull_request
+          && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
+          || DIFF_STRING=${DRONE_COMMIT_SHA}~
+      - echo "DIFF_STRING test is $DIFF_STRING"
+      # Show the changed files
+      - git --no-pager diff --name-only $DIFF_STRING
+      # exit 78 to exit cleanly if changes are not in the main files (ignore README etc)
+      - git --no-pager diff --name-only $DIFF_STRING | grep -qvE '.*.md' || exit 78
+
   - name: Lint
-    image: quay.io/halfwalker/toolset2
+    image: docker.io/halfwalker/alpineset2
     pull: if-not-exists
-    environment:
-      MOLECULE_DISTRO: ubuntu2204
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset2
+    image: docker.io/halfwalker/alpineset2
     environment:
       MOLECULE_DISTRO: ubuntu2204
+      # Set this to name the molecule instance in molecule.yml
+      DRONE_REPO_NAME: ${DRONE_REPO_NAME}
       GH_USER:
         from_secret: GH_USER
       GH_TOKEN:
@@ -36,14 +51,14 @@ steps:
     commands:
       - molecule --version
       - molecule test
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
+    # volumes:
+    #   - name: dockersock
+    #     path: /var/run/docker.sock
 
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
+# volumes:
+#   - name: dockersock
+#     host:
+#       path: /var/run/docker.sock
 
 image_pull_secrets:
   - dockerconfigjson
@@ -55,7 +70,7 @@ name: ubuntu2004
 
 # Need to define workspace as role name so molecule can find it
 workspace:
-  path: /drone/ansible-cloud_tools
+  path: /drone/${DRONE_REPO_NAME}
 
 # Have to define env variables in EACH step, not as overall pipeline
 # setup :(  Due to drone-cli using old code
@@ -65,19 +80,34 @@ workspace:
 #   MOLECULE_DISTRO: ubuntu2004
 
 steps:
+  # Skip the pipeline if only changes to README.md or non-drone control files
+  # Looking for all .yml files to trigger Lint and Test
+  - name: Skip
+    image: docker.io/halfwalker/alpineset2
+    commands:
+      # Grab the incoming commit info to see what changed
+      - test $DRONE_BUILD_EVENT = pull_request
+          && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
+          || DIFF_STRING=${DRONE_COMMIT_SHA}~
+      - echo "DIFF_STRING test is $DIFF_STRING"
+      # Show the changed files
+      - git --no-pager diff --name-only $DIFF_STRING
+      # exit 78 to exit cleanly if changes are not in the main files (ignore README etc)
+      - git --no-pager diff --name-only $DIFF_STRING | grep -qvE '.*.md' || exit 78
+
   - name: Lint
-    image: quay.io/halfwalker/toolset2
+    image: docker.io/halfwalker/alpineset2
     pull: if-not-exists
-    environment:
-      MOLECULE_DISTRO: ubuntu2004
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset2
+    image: docker.io/halfwalker/alpineset2
     environment:
       MOLECULE_DISTRO: ubuntu2004
+      # Set this to name the molecule instance in molecule.yml
+      DRONE_REPO_NAME: ${DRONE_REPO_NAME}
       GH_USER:
         from_secret: GH_USER
       GH_TOKEN:
@@ -86,14 +116,14 @@ steps:
     commands:
       - molecule --version
       - molecule test
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
+    # volumes:
+    #   - name: dockersock
+    #     path: /var/run/docker.sock
 
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
+# volumes:
+#   - name: dockersock
+#     host:
+#       path: /var/run/docker.sock
 
 image_pull_secrets:
   - dockerconfigjson
@@ -105,7 +135,7 @@ name: ubuntu1804
 
 # Need to define workspace as role name so molecule can find it
 workspace:
-  path: /drone/ansible-cloud_tools
+  path: /drone/${DRONE_REPO_NAME}
 
 # Have to define env variables in EACH step, not as overall pipeline
 # setup :(  Due to drone-cli using old code
@@ -115,17 +145,34 @@ workspace:
 #   MOLECULE_DISTRO: ubuntu1804
 
 steps:
+  # Skip the pipeline if only changes to README.md or non-drone control files
+  # Looking for all .yml files to trigger Lint and Test
+  - name: Skip
+    image: docker.io/halfwalker/alpineset2
+    commands:
+      # Grab the incoming commit info to see what changed
+      - test $DRONE_BUILD_EVENT = pull_request
+          && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
+          || DIFF_STRING=${DRONE_COMMIT_SHA}~
+      - echo "DIFF_STRING test is $DIFF_STRING"
+      # Show the changed files
+      - git --no-pager diff --name-only $DIFF_STRING
+      # exit 78 to exit cleanly if changes are not in the main files (ignore README etc)
+      - git --no-pager diff --name-only $DIFF_STRING | grep -qvE '.*.md' || exit 78
+
   - name: Lint
-    image: quay.io/halfwalker/toolset2
+    image: docker.io/halfwalker/alpineset2
     pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset2
+    image: docker.io/halfwalker/alpineset2
     environment:
       MOLECULE_DISTRO: ubuntu1804
+      # Set this to name the molecule instance in molecule.yml
+      DRONE_REPO_NAME: ${DRONE_REPO_NAME}
       GH_USER:
         from_secret: GH_USER
       GH_TOKEN:
@@ -134,14 +181,14 @@ steps:
     commands:
       - molecule --version
       - molecule test
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
+    # volumes:
+    #   - name: dockersock
+    #     path: /var/run/docker.sock
 
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
+# volumes:
+#   - name: dockersock
+#     host:
+#       path: /var/run/docker.sock
 
 image_pull_secrets:
   - dockerconfigjson
