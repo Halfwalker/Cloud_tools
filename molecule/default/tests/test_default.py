@@ -20,6 +20,7 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     # "ruby-hammer-cli",
     # "ruby-hammer-cli-foreman",
     "vault",
+    "gh",
 ])
 
 def test_packages(host, name):
@@ -90,6 +91,7 @@ def test_files(host, name):
     '/usr/local/bin/ecs-cli',
     '/usr/bin/az',
     # '/usr/bin/hammer',
+    '/usr/bin/gh',
     '/etc/bash_completion.d/_kubectl',
     '/etc/bash_completion.d/_kubeadm',
     '/etc/bash_completion.d/_minikube',

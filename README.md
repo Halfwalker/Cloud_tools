@@ -61,6 +61,7 @@ ansible-playbook -K -i hosts playbook.yml -l localhost
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [Terraform](https://www.terraform.io/downloads)
 * [Hammer](http://deb.theforeman.org/)
+* [github-cli](https://cli.github.com/)
 
 ### Install subset of tools
 

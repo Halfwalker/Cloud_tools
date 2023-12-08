@@ -34,6 +34,7 @@ cloud_default_tools:
   - drone
   - vault
   - terraform
+  - github-cli
 
 # Distribution overrides - some tools don't have a latest and greatest PPA
 # available (looking at you hammer) to install, so we have to use an earlier
@@ -94,6 +95,14 @@ cloud_aws_configs:
 
 # Packages available via PPA for Ubuntu
 cloud_ppa_packages:
+  - name: github-cli
+    repo_name: github-cli
+    uris: https://cli.github.com/packages
+    key: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    suites: stable
+    component: main
+    packages:
+      - gh
   - name: vault
     repo_name: hashicorp
     uris: https://apt.releases.hashicorp.com
