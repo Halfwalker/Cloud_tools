@@ -62,6 +62,7 @@ ansible-playbook -K -i hosts playbook.yml -l localhost
 * [Terraform](https://www.terraform.io/downloads)
 * [Hammer](http://deb.theforeman.org/)
 * [github-cli](https://cli.github.com/)
+* [vagrant](https://www.vagrantup.com/)
 
 ### Install subset of tools
 

@@ -33,6 +33,7 @@ cloud_default_tools:
   # - hammer
   - drone
   - vault
+  - vagrant
   - terraform
   - github-cli
 
@@ -103,6 +104,14 @@ cloud_ppa_packages:
     component: main
     packages:
       - gh
+  - name: vagrant
+    repo_name: hashicorp
+    uris: https://apt.releases.hashicorp.com
+    key: https://apt.releases.hashicorp.com/gpg
+    suites: "{{ ansible_distribution_release | lower }}"
+    component: main
+    packages:
+      - vagrant
   - name: vault
     repo_name: hashicorp
     uris: https://apt.releases.hashicorp.com
