@@ -44,6 +44,7 @@
       - hammer
       - vault
       - terraform
+      - vagrant
 
     # Distribution overrides - some tools don't have a latest and greatest PPA
     # available (looking at you hammer) to install, so we have to use an earlier
@@ -104,6 +105,11 @@
 
     # Packages available via PPA for Ubuntu
     cloud_ppa_packages:
+      - name: vagrant
+        repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        key: https://apt.releases.hashicorp.com/gpg
+        packages:
+          - vagrant
       - name: vault
         repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
         key: https://apt.releases.hashicorp.com/gpg

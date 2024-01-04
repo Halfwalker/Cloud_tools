@@ -52,6 +52,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [Terraform](https://www.terraform.io/downloads)
 * [Hammer](http://deb.theforeman.org/)
+* [vagrant](https://www.vagrantup.com/)
 
 ### Install subset of tools
 
