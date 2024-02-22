@@ -28,6 +28,7 @@ cloud_default_tools:
   - gimme-aws-creds
   - ecs-cli
   - eksctl
+  - linode-cli
   - azure-cli
   # Disabled for now - also check molecule/default/tests/test_default.py
   # - hammer
@@ -78,6 +79,7 @@ cloud_prereq_packages:
 cloud_pip_packages:
   # - awscli
   - gimme-aws-creds
+  - linode-cli
 
 # Generic aws configs if they don't already exist
 # Fill in your own creds later

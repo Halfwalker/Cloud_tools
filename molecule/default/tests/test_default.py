@@ -89,6 +89,7 @@ def test_files(host, name):
     '/usr/bin/dive',
     '/usr/local/bin/gimme-aws-creds',
     '/usr/local/bin/ecs-cli',
+    '/usr/local/bin/linode-cli',
     '/usr/bin/az',
     # '/usr/bin/hammer',
     '/usr/bin/gh',
