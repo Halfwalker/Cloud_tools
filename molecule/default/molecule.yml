@@ -3,7 +3,7 @@
 dependency:
   name: galaxy
 driver:
-  name: docker
+  name: podman
 
 platforms:
   - name: "cloud_tools-${MOLECULE_DISTRO:-ubuntu2004}"
@@ -21,6 +21,8 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
     pre_build_image: true
+    env:
+      USER: podman
 
 provisioner:
   name: ansible
@@ -28,13 +30,20 @@ provisioner:
     # Some tasks we don't need/want to run again for idempotence testing
     # https://univers-libre.net/posts/ansible-molecule.html
     skip-tags: molecule-idempotence-notest
+  inventory:
+    group_vars:
+      all:
+        # Create a testing user in molecule/default/prepare.yml
+        username: testing
+        groupname: testing
   env:
+    USER: podman
     GH_USER: ${GH_USER:-""}
     GH_TOKEN: ${GH_TOKEN:-""}
 
 verifier:
-  name: goss
-  env:
-    GH_USER: ${GH_USER:-""}
-    GH_TOKEN: ${GH_TOKEN:-""}
+  name: testinfra
+  # env:
+  #   GH_USER: ${GH_USER:-""}
+  #   GH_TOKEN: ${GH_TOKEN:-""}
 
