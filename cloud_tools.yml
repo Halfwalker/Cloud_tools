@@ -43,9 +43,11 @@
       - linode-cli
       - azure-cli
       - hammer
+      - drone
       - vault
       - terraform
       - vagrant
+      - github-cli
 
     # Distribution overrides - some tools don't have a latest and greatest PPA
     # available (looking at you hammer) to install, so we have to use an earlier
@@ -275,6 +277,13 @@
         completion_zsh: NONE
         completion_bash: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'Linux_amd64.tar.gz')].browser_download_url"
+      - repo: drone/drone-cli
+        filename: drone
+        type: archive
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.tar.gz')].browser_download_url"
+        tracking: '/usr/local/bin/drone drone/drone-cli /usr/local/bin/drone --version | cut -d" " -f3'
 
     # Packages that are direct downloads of the binary
     cloud_binary_tools:

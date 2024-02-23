@@ -45,6 +45,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [docker-compose](https://github.com/docker/compose/releases)
 * [dive (docker layer stats)](https://github.com/wagoodman/dive)
 * [dlayer (docker layer stats)](https://github.com/wercker/dlayer)
+* [drone (drone-cli)](https://github.com/drone/drone-cli)
 * [AWS awscli (v2)](https://aws.amazon.com/cli/)
 * [AWS gimme-aws-creds](https://github.com/Nike-Inc/gimme-aws-creds)
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
@@ -53,6 +54,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [Linode linode-cli](https://www.linode.com/products/cli/)
 * [Terraform](https://www.terraform.io/downloads)
 * [Hammer](http://deb.theforeman.org/)
+* [github-cli](https://cli.github.com/)
 * [vagrant](https://www.vagrantup.com/)
 
 ### Install subset of tools
