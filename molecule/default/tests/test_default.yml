@@ -28,6 +28,8 @@ package:
     skip: false
 
 file:
+  /usr/local/bin/linode-cli:
+    exists: true
   /usr/local/bin/dlayer:
     exists: true
   /usr/local/share/kubetools:

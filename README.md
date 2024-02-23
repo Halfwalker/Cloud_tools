@@ -50,6 +50,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [AWS ecs-cli](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_CLI_installation.html)
 * [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+* [Linode linode-cli](https://www.linode.com/products/cli/)
 * [Terraform](https://www.terraform.io/downloads)
 * [Hammer](http://deb.theforeman.org/)
 * [vagrant](https://www.vagrantup.com/)
