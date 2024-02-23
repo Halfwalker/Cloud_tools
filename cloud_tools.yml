@@ -107,43 +107,74 @@
 
     # Packages available via PPA for Ubuntu
     cloud_ppa_packages:
+      - name: github-cli
+        repo_name: github-cli
+        uris: https://cli.github.com/packages
+        key: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+        suites: stable
+        component: main
+        packages:
+          - gh
       - name: vagrant
-        repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        repo_name: hashicorp
+        uris: https://apt.releases.hashicorp.com
         key: https://apt.releases.hashicorp.com/gpg
+        suites: "{{ ansible_distribution_release | lower }}"
+        component: main
         packages:
           - vagrant
       - name: vault
-        repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        repo_name: hashicorp
+        uris: https://apt.releases.hashicorp.com
         key: https://apt.releases.hashicorp.com/gpg
+        suites: "{{ ansible_distribution_release | lower }}"
+        component: main
         packages:
           - vault
       - name: terraform
-        repo: "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        repo_name: hashicorp
+        uris: https://apt.releases.hashicorp.com
         key: https://apt.releases.hashicorp.com/gpg
+        suites: "{{ ansible_distribution_release | lower }}"
+        component: main
         packages:
           - terraform
       - name: kubectl
         # Ugly - they only have a xenial version for xenial/bionic
         # TODO - handle all distros cleanly
-        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+        repo_name: kubernetes
+        uris: https://apt.kubernetes.io
         key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        # key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+        suites: kubernetes-xenial
+        component: main
         packages:
           - kubectl
       - name: kubeadm
         # Ugly - they only have a xenial version for xenial/bionic
         # TODO - handle all distros cleanly
-        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+        repo_name: kubernetes
+        uris: https://apt.kubernetes.io
         key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        # key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+        suites: kubernetes-xenial
+        component: main
         packages:
           - kubeadm
       - name: azure-cli
-        repo: "deb https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main"
+        repo_name: azure
+        uris: https://packages.microsoft.com/repos/azure-cli
         key: https://packages.microsoft.com/keys/microsoft.asc
+        suites: "{{ ansible_distribution_release | lower }}"
+        component: main
         packages:
           - azure-cli
       - name: helm
-        repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+        repo_name: helm
+        uris: https://baltocdn.com/helm/stable/debian
         key: https://baltocdn.com/helm/signing.asc
+        suites: all
+        component: main
         packages:
           - helm
       - name: hammer
@@ -154,9 +185,12 @@
         #       to do an override, using the focal version for jammy.  Other distros
         #       work fine, so we use their native PPA version.  See cloud_distro_override
         #       above.
-        # repo: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
-        repo: "deb http://deb.theforeman.org/ {{ cloud_distro_override.hammer[ansible_distribution_release] }} 2.5"
-        key: https://deb.theforeman.org/foreman.asc
+        # uris: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+        repo_name: foreman
+        uris: http://deb.theforeman.org
+        key: https://deb.theforeman.org/pubkey.gpg
+        suites: "{{ cloud_distro_override.hammer[ansible_distribution_release] }}"
+        component: 2.5
         packages:
           - ruby-hammer-cli
           - ruby-hammer-cli-foreman
