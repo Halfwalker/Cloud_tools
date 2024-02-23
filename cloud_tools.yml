@@ -454,21 +454,37 @@
       #
       # Install tools via PPA
       #
-      - name: Add repo keys for PPA repos
-        apt_key:
-          url: "{{ item.key }}"
-          state: present
+      - name: Check if APT repository already there
+        stat:
+          path: "/etc/apt/sources.list.d/{{ item.repo_name }}.sources"
         loop: "{{ cloud_ppa_packages }}"
+        register: repo_check
         when: item.name in cloud_tools
+        check_mode: no
 
-      - name: Install repo
-        apt_repository:
-          repo: "{{ item.repo }}"
+      # Now loop over the repo_check.results since that has each of the cloud_ppa_packages
+      # dicts in it, under "item".  Hence the weird looking item.item.repo_name here.
+      - name: Add APT repository if required
+        ansible.builtin.deb822_repository:
+          name: "{{ item.item.repo_name }}"
+          types: deb
+          uris: "{{ item.item.uris }}"
+          signed_by: "{{ item.item.key }}"
+          suites: "{{ item.item.suites }}"
+          components: "{{ item.item.component | default(omit) }}"
+          architectures: amd64
           state: present
+          enabled: yes
+        loop: "{{ repo_check.results }}"
+        when: item.item.name in cloud_tools and not item.stat.exists
+        register: add_deb822
+
+      # add_deb822 has a list of "- ansible_loop_var: item" for each loop
+      # Sets an overall changed: true if any item changed
+      - name: Update APT cache # noqa no-handler
+        ansible.builtin.apt:
           update_cache: yes
-        # with_items: "{{ cloud_ppa_packages }}"
-        loop: "{{ cloud_ppa_packages }}"
-        when: item.name in cloud_tools
+        when: add_deb822.changed
 
       - name: Install tool(s) from PPA
         apt:
