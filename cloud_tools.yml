@@ -328,6 +328,26 @@
           #--------------------------------------------
 
 
+    - when: groupname is not defined
+      block:
+        - name: Get passwd DB entry for {{ username }}
+          ansible.builtin.getent:
+            database: passwd
+            key: "{{ username }}"
+          register: user_pw
+
+        - name: Get group DB entry for {{ username }}
+          ansible.builtin.getent:
+            database: group
+            key: "{{ user_pw.ansible_facts.getent_passwd[username][2] }}"
+          register: user_gid
+
+        - name: "Set groupname fact to {{ user_gid.ansible_facts.getent_group.keys() | first }}"
+          set_fact:
+            groupname: "{{ user_gid.ansible_facts.getent_group.keys() | first }}"
+      #
+      # block
+
     - become: yes
       block:
 
@@ -370,8 +390,8 @@
         file:
           path: "{{ ansible_user_dir }}/{{ item }}"
           state: directory
-          owner: "{{ ansible_user_id }}"
-          group: "{{ ansible_user_id }}"
+          owner: "{{ username }}"
+          group: "{{ groupname }}"
           mode: '0750'
         with_items:
           - .aws
@@ -379,10 +399,10 @@
 
       - name: Ensure puppet/hammer config dirs are there
         file:
-          path: "/home/{{ ansible_user_id }}/{{ item }}"
+          path: "/home/{{ username }}/{{ item }}"
           state: directory
-          owner: "{{ ansible_user_id }}"
-          group: "{{ ansible_user_id }}"
+          owner: "{{ username }}"
+          group: "{{ groupname }}"
           mode: '0750'
         with_items:
           - .hammer
@@ -442,8 +462,8 @@
             content: "{{ item.src }}"
             dest: "{{ ansible_user_dir }}/.aws/{{ item.dest }}"
             force: no
-            owner: "{{ ansible_user_id }}"
-            group: "{{ ansible_user_id }}"
+            owner: "{{ username }}"
+            group: "{{ groupname }}"
             mode: "{{ item.mode }}"
           with_items: "{{ cloud_aws_configs }}"
 
@@ -458,6 +478,8 @@
           command: /tmp/aws/install
           args:
             creates: /usr/local/bin/aws
+      #
+      # block
 
 
       #
@@ -591,8 +613,8 @@
               remote_src: yes
               dest: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}"
               creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
-              owner: "{{ ansible_user_id }}"
-              group: "{{ ansible_user_id }}"
+              owner: "{{ username }}"
+              group: "{{ groupname }}"
               mode: 0755
             with_items: "{{ cloud_tools_info }}"
             when:
@@ -616,8 +638,8 @@
               src: "{{ item.1.src }}"
               dest: "{{ item.1.dest }}"
               state: link
-              owner: "{{ ansible_user_id }}"
-              group: "{{ ansible_user_id }}"
+              owner: "{{ username }}"
+              group: "{{ groupname }}"
             with_subelements:
               - "{{ cloud_git_tools }}"
               - links
