@@ -9,7 +9,7 @@ workspace:
 steps:
   # Skip the pipeline if only changes to README.md or non-drone control files
   - name: Skip
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
     commands:
       # Grab the incoming commit info to see what changed
       - test $DRONE_BUILD_EVENT = pull_request
@@ -22,13 +22,14 @@ steps:
       - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
 
   - name: Lint
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
+    pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
     environment:
       MOLECULE_DISTRO: ubuntu2204
       GH_USER:
@@ -39,14 +40,6 @@ steps:
     commands:
       - molecule --version
       - molecule test
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
 
 ---
 kind: pipeline
@@ -59,7 +52,7 @@ workspace:
 steps:
   # Skip the pipeline if only changes to README.md or non-drone control files
   - name: Skip
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
     commands:
       # Grab the incoming commit info to see what changed
       - test $DRONE_BUILD_EVENT = pull_request
@@ -72,13 +65,14 @@ steps:
       - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
 
   - name: Lint
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
+    pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
     environment:
       MOLECULE_DISTRO: ubuntu2004
       GH_USER:
@@ -89,14 +83,6 @@ steps:
     commands:
       - molecule --version
       - molecule test
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
 
 ---
 kind: pipeline
@@ -109,23 +95,27 @@ workspace:
 steps:
   # Skip the pipeline if only changes to README.md or non-drone control files
   - name: Skip
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
     commands:
+      # Grab the incoming commit info to see what changed
       - test $DRONE_BUILD_EVENT = pull_request
           && DIFF_STRING=origin/${DRONE_COMMIT_BRANCH:-master}
           || DIFF_STRING=${DRONE_COMMIT_SHA}~
       - echo "DIFF_STRING test is $DIFF_STRING"
+      # Show the changed files
       - git --no-pager diff --name-only $DIFF_STRING
+      # exit 78 to exit cleanly if changes are not in the main files (ignore README etc)
       - git --no-pager diff --name-only $DIFF_STRING | grep -qE 'cloud_tools.yml|.drone.yml|molecule/.*.yml' || exit 78
 
   - name: Lint
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
+    pull: if-not-exists
     commands:
       - yamllint .
       - ansible-lint --force-color
 
   - name: Molecule
-    image: quay.io/halfwalker/toolset
+    image: docker.io/halfwalker/alpineset2
     environment:
       MOLECULE_DISTRO: ubuntu1804
       GH_USER:
@@ -136,12 +126,4 @@ steps:
     commands:
       - molecule --version
       - molecule test
-    volumes:
-      - name: dockersock
-        path: /var/run/docker.sock
-
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run/docker.sock
 

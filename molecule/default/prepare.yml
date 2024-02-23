@@ -6,11 +6,19 @@
 
   tasks:
 
-    - name: Install ZSH
+    - name: Add testing user
+      user:
+        name: testing
+        comment: Test user for cloud_tools
+
+    # python3-debian Required for deb822_repository tasks
+    - name: Install support packages
       apt:
         state: present
+        install_recommends: no
         update_cache: yes
-        name:
+        name: 
+          - python3-debian
           - zsh
 
     - name: Create blank /root/.zshrc
