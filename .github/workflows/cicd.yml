@@ -1,0 +1,52 @@
+# https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+
+name: Molecule Test
+run-name: Molecule test
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  # Schedules not supported yet
+  # https://docs.gitea.com/usage/actions/faq#what-workflow-trigger-events-does-gitea-support
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+  # schedule:
+  #   # Every 1st of the month at 10pm
+  #   - cron: '0 22 1 * *'
+
+
+jobs:
+  Molecule:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - "2204"
+          - "2004"
+    container:
+      image: docker.io/halfwalker/alpineset2
+      # This option for using v0.2.6 ACT runner
+      # Not required ? Looks like "options: --privileged" below works, and
+      # doesn't break github syntax
+      # privileged: true
+      # This option for using old -main- ACT runner
+      options: --privileged
+    env:
+      MOLECULE_DISTRO: ubuntu${{ matrix.version }}
+      PY_COLORS: '1'
+      ANSIBLE_FORCE_COLOR: '1'
+      GH_USER: ${{ secrets.GH_USER }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: See what exists
+        run: |
+          pwd
+          ls -la
+      - run: ansible --version
+      - run: molecule --version
+      - run: yamllint .
+      - run: ansible-lint --force-color
+      - run: molecule test
+
