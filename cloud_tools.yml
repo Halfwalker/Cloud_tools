@@ -142,25 +142,17 @@
         packages:
           - terraform
       - name: kubectl
-        # Ugly - they only have a xenial version for xenial/bionic
-        # TODO - handle all distros cleanly
         repo_name: kubernetes
-        uris: https://apt.kubernetes.io
-        key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        # key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
-        suites: kubernetes-xenial
-        component: main
+        uris: https://pkgs.k8s.io/core:/stable:/v1.28/deb/
+        key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+        suites: /
         packages:
           - kubectl
       - name: kubeadm
-        # Ugly - they only have a xenial version for xenial/bionic
-        # TODO - handle all distros cleanly
         repo_name: kubernetes
-        uris: https://apt.kubernetes.io
-        key: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        # key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
-        suites: kubernetes-xenial
-        component: main
+        uris: https://pkgs.k8s.io/core:/stable:/v1.28/deb/
+        key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+        suites: /
         packages:
           - kubeadm
       - name: azure-cli
