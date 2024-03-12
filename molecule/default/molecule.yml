@@ -9,6 +9,7 @@ platforms:
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    rootless: false
     privileged: true
     pre_build_image: true
     network: podman_2204
