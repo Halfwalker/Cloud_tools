@@ -10,6 +10,7 @@ platforms:
     # Default to dockerhub unless a local cache is defined
     # Default to ubuntu2004 unless a distro is defined
     image: "${HUB_CACHE:-registry.hub.docker.com}/geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    rootless: false
     # https://github.com/ansible-community/molecule/issues/1331
     # registry:
     #   url: https://registry.hub.docker.com/
