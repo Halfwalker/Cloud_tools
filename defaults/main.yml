@@ -132,15 +132,15 @@ cloud_ppa_packages:
       - terraform
   - name: kubectl
     repo_name: kubernetes
-    uris: https://pkgs.k8s.io/core:/stable:/v1.28/deb/
-    key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+    uris: https://pkgs.k8s.io/core:/stable:/v1.29/deb/
+    key: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
     suites: /
     packages:
       - kubectl
   - name: kubeadm
     repo_name: kubernetes
-    uris: https://pkgs.k8s.io/core:/stable:/v1.28/deb/
-    key: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+    uris: https://pkgs.k8s.io/core:/stable:/v1.29/deb/
+    key: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
     suites: /
     packages:
       - kubeadm
