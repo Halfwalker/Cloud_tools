@@ -471,3 +471,10 @@
     - zsh_installed.stat.exists
     - '"awscli" in cloud_tools'
 
+- name: Add vagrant plugins if necessary
+  command: "vagrant plugin install {{ item }}"
+  with_items: "{{ cloud_vagrant_plugins }}"
+  become: yes
+  become_user: "{{ username }}"
+  when: '"vagrant" in cloud_tools'
+

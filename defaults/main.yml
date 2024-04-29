@@ -10,6 +10,13 @@ username: "{{ ansible_user_id }}"
 git_repos_tracked: "/home/{{ username }}/.git-repos-tracked"
 git_files_tracked: "/home/{{ username }}/.git-files-tracked"
 
+# If installing vagrant we can also install plugins
+# https://developer.hashicorp.com/vagrant/docs/plugins
+# https://github.com/hashicorp/vagrant/wiki/Available-Vagrant-Plugins (from 2020 though)
+# See full list available with gem list --remote vagrant-
+cloud_vagrant_plugins:
+  - vagrant-env
+
 # Default list of tools
 cloud_default_tools:
   - minikube
