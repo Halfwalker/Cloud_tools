@@ -752,10 +752,24 @@
         - zsh_installed.stat.exists
         - '"awscli" in cloud_tools'
 
-    - name: Add vagrant plugins if necessary
-      command: "vagrant plugin install {{ item }}"
-      with_items: "{{ cloud_vagrant_plugins }}"
-      become: yes
+    - become: yes
       become_user: "{{ username }}"
       when: '"vagrant" in cloud_tools'
+      block:
+        - name: Get list of installed Vagrant plugins
+          command: "vagrant plugin list"
+          register: installed_plugins_output
+          changed_when: false
+
+        - name: Extract installed plugins from the output
+          set_fact:
+            installed_plugins: "{{ installed_plugins_output.stdout_lines | map('regex_replace', '^([a-zA-Z0-9-]+) .*', '\\1') | list }}"
+
+        - name: Add vagrant plugins if necessary
+          command: "vagrant plugin install {{ item }}"
+          loop: "{{ cloud_vagrant_plugins }}"
+          when: item not in installed_plugins
+    
+      #
+      # block
 
