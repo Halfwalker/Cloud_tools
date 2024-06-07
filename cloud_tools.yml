@@ -56,16 +56,6 @@
       - vagrant
       - github-cli
 
-    # Distribution overrides - some tools don't have a latest and greatest PPA
-    # available (looking at you hammer) to install, so we have to use an earlier
-    # distro version.  Hammer does not yet have a jammy/22.04 PPA, so we have
-    # to override to focal
-    cloud_distro_override:
-      hammer:
-        jammy: focal
-        focal: focal
-        bionic: bionic
-
     # This variable can be overridden on the cmdline to select which tools to install
     cloud_tools: "{{ cloud_default_tools }}"
 
@@ -179,19 +169,17 @@
         packages:
           - helm
       - name: hammer
-        # NOTE: ensure using version 2.x, not 3.0 which is missing several subcommands
-        #       sc-param, puppet-class, puppet-environment
-        #       Use "nightly" instead of 2.5 below to get latest
-        # NOTE: theforeman.org does not YET have a PPA repo for 22.04/jammy, so we have
-        #       to do an override, using the focal version for jammy.  Other distros
-        #       work fine, so we use their native PPA version.  See cloud_distro_override
-        #       above.
-        # uris: "deb http://deb.theforeman.org/ {{ ansible_distribution_release }} nightly"
+        # NOTE: v2.5 no longer available - now switching to nightly for latest
+        #       which is v3.11 as of June 2024
+        # DEPRECATED 2.5 notes
+        #   NOTE: ensure using version 2.x, not 3.0 which is missing several subcommands
+        #         sc-param, puppet-class, puppet-environment
+        #         Use "nightly" instead of 2.5 below to get latest
         repo_name: foreman
         uris: http://deb.theforeman.org
         key: https://deb.theforeman.org/pubkey.gpg
-        suites: "{{ cloud_distro_override.hammer[ansible_distribution_release] }}"
-        component: 2.5
+        suites: "{{ ansible_distribution_release }}"
+        component: nightly
         packages:
           - ruby-hammer-cli
           - ruby-hammer-cli-foreman
