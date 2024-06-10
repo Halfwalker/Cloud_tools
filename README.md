@@ -31,7 +31,6 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 
 ### Default list of tools installed
 
-* [vault](https://www.vaultproject.io/downloads)
 * [minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)
 * [kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
 * [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
@@ -52,10 +51,11 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [Linode linode-cli](https://www.linode.com/products/cli/)
-* [Terraform](https://www.terraform.io/downloads)
+* [Terraform](https://www.terraform.io/downloads) (not supported in Bionic/18.04)
+* [vault](https://www.vaultproject.io/downloads) (not supported in Bionic/18.04)
+* [vagrant](https://www.vagrantup.com/) (not supported in Bionic/18.04)
 * [Hammer](http://deb.theforeman.org/)
 * [github-cli](https://cli.github.com/)
-* [vagrant](https://www.vagrantup.com/)
 
 ### Install subset of tools
 
