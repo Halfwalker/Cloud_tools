@@ -540,7 +540,7 @@
           password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
           force_basic_auth: "{% if lookup('env', 'GH_USER') %}yes{% else %}no{% endif %}"
         register: cloud_git_releases
-        until: cloud_git_releases.status == 200
+        until: ('status' in cloud_git_releases and cloud_git_releases.status == 200)
         retries: 5
         with_items: "{{ cloud_git_tools }}"
         when: item.filename in cloud_tools
