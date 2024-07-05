@@ -248,7 +248,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-amd64')].browser_download_url"
     tracking: '/usr/local/bin/kind kubernetes-sigs/kind /usr/local/bin/kind --version | cut -d" " -f3'
-  - repo: weaveworks/eksctl
+  - repo: eksctl-io/eksctl
     filename: eksctl
     type: archive
     completion_zsh: NONE
