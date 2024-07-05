@@ -258,7 +258,7 @@
         completion_zsh: NONE
         completion_bash: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-amd64')].browser_download_url"
-      - repo: weaveworks/eksctl
+      - repo: eksctl-io/eksctl
         filename: eksctl
         type: archive
         completion_zsh: NONE
