@@ -53,6 +53,7 @@
       - drone
       - vault
       - terraform
+      - tfswitch
       - vagrant
       - github-cli
 
@@ -212,7 +213,19 @@
         completion_zsh: _docker-compose
         completion_bash: docker-compose
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
-      # kubectx and kubens
+      # tfswitch Terraform switcher
+      - repo: warrensbox/terraform-switcher
+        filename: tfswitch
+        type: archive
+        unpack: /usr/local/share/tfswitch
+        links:
+          - src: /usr/local/share/tfswitch/tfswitch
+            dest: /usr/local/bin/tfswitch
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? contains (browser_download_url, 'terraform-switcher') && ends_with (browser_download_url, 'linux_amd64.tar.gz')].browser_download_url"
+        tracking: '/usr/local/bin/tfswitch warrensbox/terraform-switcher /usr/local/bin/tfswitch --version | cut -d" " -f2'
+          # kubectx and kubens
       - repo: ahmetb/kubectx
         filename: kubectx
         type: archive

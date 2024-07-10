@@ -52,6 +52,7 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [Linode linode-cli](https://www.linode.com/products/cli/)
 * [Terraform](https://www.terraform.io/downloads) (not supported in Bionic/18.04)
+* [Terraform-switcher](https://github.com/warrensbox/terraform-switcher)
 * [vault](https://www.vaultproject.io/downloads) (not supported in Bionic/18.04)
 * [vagrant](https://www.vagrantup.com/) (not supported in Bionic/18.04)
 * [Hammer](http://deb.theforeman.org/)
