@@ -43,6 +43,7 @@ cloud_default_tools:
   - vault
   - vagrant
   - terraform
+  - tfswitch
   - github-cli
 
 # This variable can be overridden on the cmdline to select which tools to install
@@ -198,6 +199,18 @@ cloud_git_tools:
     completion_bash: docker-compose
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
     tracking: '/usr/local/bin/docker-compose docker/compose /usr/local/bin/docker-compose --version | cut -d" " -f4'
+  # tfswitch Terraform switcher
+  - repo: warrensbox/terraform-switcher
+    filename: tfswitch
+    type: archive
+    unpack: /usr/local/share/tfswitch
+    links:
+      - src: /usr/local/share/tfswitch/tfswitch
+        dest: /usr/local/bin/tfswitch
+    completion_zsh: NONE
+    completion_bash: NONE
+    jmesquery: "assets[? contains (browser_download_url, 'terraform-switcher') && ends_with (browser_download_url, 'linux_amd64.tar.gz')].browser_download_url"
+    tracking: '/usr/local/bin/tfswitch warrensbox/terraform-switcher /usr/local/bin/tfswitch --version | cut -d" " -f2'
   # kubectx and kubens
   - repo: ahmetb/kubectx
     filename: kubectx
