@@ -63,6 +63,8 @@ cloud_prereq_packages:
     - python{{ ansible_python.version.major }}-keyrings.alt
     - python{{ ansible_python.version.major }}-wheel
     - unzip
+  noble:
+    - python{{ ansible_python.version.major }}-oauthlib
   jammy:
     - python{{ ansible_python.version.major }}-oauthlib
   focal:
