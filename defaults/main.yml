@@ -6,9 +6,14 @@ force_update: false
 # Default username to user calling role
 username: "{{ ansible_user_id }}"
 
+# Github prefix url - this can be overridden to reach private or other repos
+github_prefix: "https://github.com"
+github_api:    "https://api.github.com/repos"
+
 # Location of cloned git repos, in case it isn't defined elsewhere
 git_repos_tracked: "/home/{{ username }}/.git-repos-tracked"
 git_files_tracked: "/home/{{ username }}/.git-files-tracked"
+git_mrconfig: "/home/{{ username }}/.mrconfig"
 
 # If installing vagrant we can also install plugins
 # https://developer.hashicorp.com/vagrant/docs/plugins
@@ -180,11 +185,16 @@ cloud_ppa_packages:
 # repo:       Where to find this tool on github
 # filename:   Final /usr/local/bin/<filename>
 # type:     archive - these are unpacked into /usr/local/bin unless unpack: is specified
+#           git     - these are just direct repos, downloaded to /usr/local/share/<filename>
 #           exe     - these are just direct executables, raw and unfiltered
 #                     placed in /usr/local/bin
 #           deb     - release has an ordinary .deb that can be installed
 # completion: Name of zsh/bash completion file in url or NONE
 # jmesquery:  Query to identify the exact download url we want
+# tracking: Entry for ~/.git-file-tracking to help with updating non-package items
+#             location_of_file repo_name command_to_get_current_version
+#             /usr/local/bin/fzf junegunn/fzf fzf --version | cut -d' ' -f1
+#             /usr/local/bin/rg BurntSushi/ripgrep rg --version | head -1 | cut -d" " -f2
 cloud_git_tools:
   # Super annoying, docker-{machine,compose} use DIFFERENT completion filenames
   - repo: docker/machine

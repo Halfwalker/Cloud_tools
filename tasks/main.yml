@@ -49,6 +49,7 @@
       with_items:
         - "{{ git_repos_tracked }}"
         - "{{ git_files_tracked }}"
+        - "{{ git_mrconfig }}"
       # become_user: "{{ username }}"
       changed_when: false
   
@@ -293,6 +294,8 @@
           file:
             path: "{{ item.unpack }}"
             state: directory
+            owner: "{{ username }}"
+            group: "{{ groupname }}"
           with_items: "{{ cloud_tools_info }}"
           when:
             - item.filename in cloud_tools
@@ -346,6 +349,34 @@
             - item.type == "deb"
             - item.filename in cloud_tools
   
+        # A little bit ugly - each entry is bounded by marker lines which clutters up
+        # the .mrconfig file
+        # Note: Marker lines must be indented 7 to match other funcs in lib section
+        - name: git - insert mrconfig lib section
+          blockinfile:
+            dest: "{{ git_mrconfig }}"
+            insertbefore: BOF
+            marker: "       # ----- {mark} Ansible managed lib -----"
+            # NOTE: In test-var.yml playbook we use playbook_dir + full path to file
+            #       In actual role use role_path var
+            block: "{{ lookup('ansible.builtin.file', role_path + '/files/git_mrconfig_lib') }}"
+
+        - name: git - Insert mrconfig repos
+          blockinfile:
+            dest: "{{ git_mrconfig }}"
+            insertafter: EOF
+            prepend_newline: true
+            append_newline: true
+            marker: "# ----- {mark} Ansible managed {{ item.repo }} -----"
+            block: |
+              [{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/share{% endif %}/{{ item.filename }}]
+              checkout = git clone '{{ github_prefix }}/{{ item.repo }}' '{{ item.repo | regex_replace(".*/(.*)", '\1') }}'
+              {% if item.commands is defined %}
+              update = update_{{ item.repo | regex_replace(".*/(.*)", '\1') }}
+              {% endif %}
+          with_items: "{{ cloud_git_tools }}"
+          when: item.type == "git"
+
         - name: Ensure each repo location in other tracking file
           lineinfile:
             dest: "{{ git_files_tracked }}"

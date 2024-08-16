@@ -1,0 +1,22 @@
+# Ansible managed
+# No blank lines allowed in lib section
+# All comments in lib section must be at same indent level 7 or more
+[DEFAULT]
+jobs = 5
+lib = 
+       # If repo is a fork, update the fork from upstream first
+	   sync_fork() {
+	       cd "$MR_REPO"
+	       origin_url=`git config "remote.origin.url"`
+	       default_branch=`basename $(git symbolic-ref --short refs/remotes/origin/HEAD)`
+	       gh repo sync $origin_url
+	       git pull origin $default_branch
+	   }
+       # Check if local master branch is behind upstream origin/master branch
+	   check_commit() {
+	       default_branch=`basename $(git symbolic-ref --short refs/remotes/origin/HEAD)`
+	       git fetch origin
+	       set -- $(git show-ref --hash $default_branch origin/${default_branch})
+	       [ "$1" != "$2" ] && return 0 || return 1
+	   }
+
