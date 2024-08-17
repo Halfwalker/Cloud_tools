@@ -262,6 +262,10 @@
         - item.1.filename in cloud_tools
       check_mode: no
   
+    - name: Show list of tools to be installed
+      debug:
+        var=cloud_tools_info
+
     - when: cloud_tools_info is defined
       block:
         - name: Install tool executables to /usr/local/bin
