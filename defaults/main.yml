@@ -33,7 +33,6 @@ cloud_default_tools:
   - Kui
   - skaffold
   - helm
-  - docker-machine
   - docker-compose
   - dive
   - awscli
@@ -196,14 +195,6 @@ cloud_ppa_packages:
 #             /usr/local/bin/fzf junegunn/fzf fzf --version | cut -d' ' -f1
 #             /usr/local/bin/rg BurntSushi/ripgrep rg --version | head -1 | cut -d" " -f2
 cloud_git_tools:
-  # Super annoying, docker-{machine,compose} use DIFFERENT completion filenames
-  - repo: docker/machine
-    filename: docker-machine
-    type: exe
-    completion_zsh: _docker-machine
-    completion_bash: docker-machine.bash
-    jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
-    tracking: '/usr/local/bin/docker-machine docker/machine /usr/local/bin/docker-machine --version | cut -d" " -f3'
   - repo: docker/compose
     filename: docker-compose
     type: exe

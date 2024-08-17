@@ -48,7 +48,6 @@ ansible-playbook -K -i hosts playbook.yml -l localhost
 * [Kui](https://github.com/kubernetes-sigs/kui)
 * [skaffold](https://skaffold.dev/docs/install/)
 * [helm](https://helm.sh/docs/intro/install/)
-* [docker-machine](https://github.com/docker/machine/releases)
 * [docker-compose](https://github.com/docker/compose/releases)
 * [dive (docker layer stats)](https://github.com/wagoodman/dive)
 * [dlayer (docker layer stats)](https://github.com/wercker/dlayer)
