@@ -31,6 +31,8 @@ cloud_default_tools:
   - kubectx
   - kubens
   - Kui
+  - k9s
+  - glasskube
   - skaffold
   - helm
   - docker-compose
@@ -249,6 +251,22 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-x64.zip')].browser_download_url"
+  # glasskube - Kubernetes cluster package manager
+  - repo: glasskube/glasskube
+    filename: glasskube
+    type: deb
+    completion_zsh: NONE
+    completion_bash: NONE
+    jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.deb')].browser_download_url"
+    tracking: '/usr/bin/glasskube glasskube/glasskube /usr/bin/glasskube --version | cut -d" " -f3'
+  # k9s - Kubernetes cluster management CLI
+  - repo: derailed/k9s
+    filename: k9s
+    type: deb
+    completion_zsh: NONE
+    completion_bash: NONE
+    jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.deb')].browser_download_url"
+    tracking: '/usr/bin/k9s derailed/k9s /usr/bin/k9s version | grep Version | sed "s/Version.*v//"'
   # dive - nice docker image analysis tool
   - repo: wagoodman/dive
     filename: dive
