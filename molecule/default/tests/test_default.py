@@ -117,6 +117,7 @@ def test_files_root(host, name):
 
 @pytest.mark.parametrize("directory", [
     '/usr/local/share/Kui-linux-x64',
+    '/usr/local/share/kubetools',
 ])
 
 def test_dirs(host, directory):
@@ -127,17 +128,17 @@ def test_dirs(host, directory):
     assert f.user == all_variables['username']
     assert f.group == all_variables['groupname']
 
-@pytest.mark.parametrize("directory", [
-    '/usr/local/share/kubetools',
-])
+# @pytest.mark.parametrize("directory", [
+#     '/usr/local/share/kubetools',
+# ])
 
-def test_dirs_root(host, directory):
-    all_variables = host.ansible.get_variables()
-    f = host.file(directory)
+# def test_dirs_root(host, directory):
+#     all_variables = host.ansible.get_variables()
+#     f = host.file(directory)
 
-    assert f.is_directory
-    assert f.user == 'root'
-    assert f.group == 'root'
+#     assert f.is_directory
+#     assert f.user == 'root'
+#     assert f.group == 'root'
 
 
 
