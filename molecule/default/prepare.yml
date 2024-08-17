@@ -21,6 +21,14 @@
           - zsh
           - python3-debian
 
+    - name: Create blank /home/testing/.zshrc
+      file:
+        path: "/home/testing/.zshrc"
+        owner: root
+        group: root
+        mode: 0644
+        state: touch
+
     - name: Create blank /root/.zshrc
       file:
         path: "/root/.zshrc"
