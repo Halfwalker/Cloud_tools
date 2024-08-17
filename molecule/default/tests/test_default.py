@@ -20,6 +20,8 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     # "ruby-hammer-cli",
     # "ruby-hammer-cli-foreman",
     "vault",
+    "vagrant",
+    "terraform",
     "gh",
 ])
 
@@ -82,9 +84,10 @@ def test_files(host, name):
     '/usr/bin/kubeadm',
     '/usr/bin/kubelet',
     '/usr/bin/kubectl',
+    '/usr/bin/glasskube',
+    '/usr/bin/k9s',
     '/usr/local/bin/skaffold',
     '/usr/sbin/helm',
-    '/usr/local/bin/docker-machine',
     '/usr/local/bin/docker-compose',
     '/usr/bin/dive',
     '/usr/local/bin/gimme-aws-creds',
