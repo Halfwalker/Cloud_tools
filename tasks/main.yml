@@ -495,7 +495,7 @@
 
 - name: Create AWS cli zsh completion
   blockinfile:
-    dest: "{{ ansible_user_dir }}/.zshrc"
+    dest: "/home/{{ username }}/.zshrc"
     insertafter: EOF
     marker: "#----- {mark} Ansible managed for aws command completion"
     block: |
