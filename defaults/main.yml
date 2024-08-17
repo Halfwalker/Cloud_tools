@@ -257,7 +257,7 @@ cloud_git_tools:
     type: deb
     completion_zsh: NONE
     completion_bash: NONE
-    jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.deb')].browser_download_url"
+    jmesquery: "assets[? ends_with (browser_download_url, '_amd64.deb')].browser_download_url"
     tracking: '/usr/bin/glasskube glasskube/glasskube /usr/bin/glasskube --version | cut -d" " -f3'
   # k9s - Kubernetes cluster management CLI
   - repo: derailed/k9s
