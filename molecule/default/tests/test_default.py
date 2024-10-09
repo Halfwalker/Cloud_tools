@@ -77,6 +77,7 @@ def test_files(host, name):
 
 # These are root:root
 @pytest.mark.parametrize("name", [
+    '/usr/local/bin/akamai',
     '/usr/local/bin/dlayer',
     '/usr/bin/vault',
     '/usr/local/bin/minikube',
@@ -146,7 +147,6 @@ def test_dirs(host, directory):
 
 
 @pytest.mark.parametrize("symlink", [
-    '/usr/local/bin/akamai',
     '/usr/local/bin/kubectx',
     '/usr/local/bin/kubens',
     '/usr/local/bin/Kui',
