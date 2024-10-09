@@ -1,5 +1,20 @@
 ---
 
+# Need a timeout to allow molecule testing to continue during CI/CD
+- name: Show what tools are to be installed
+  pause:
+    seconds: 10
+    prompt: |
+      #--------------------------------------------
+      |  Installing these tools
+      |  Hit <ENTER> to continue or ctrl-c to abort
+      |
+      {% for tool in cloud_tools %}
+      |     - {{ tool }}
+      {% endfor %}
+      |
+      #--------------------------------------------
+
 - name: Assert that username and groupname are defined
   assert:
     that:
@@ -353,6 +368,24 @@
             - item.type == "deb"
             - item.filename in cloud_tools
   
+        - name: git - Run any commands associated with deb packages or direct exe
+          shell: "{{ item.1 }}"
+          with_subelements:
+            - "{{ cloud_git_tools }}"
+            - commands
+            - skip_missing: true
+          when: item.0.filename in git_tools and (item.0.type == "deb" or item.0.type == "exe")
+
+        - name: git - Run any commands associated with repos
+          shell: "{{ item.1 }}"
+          args:
+            chdir: "{% if item.0.unpack is defined %}{{ item.0.unpack }}{% else %}/usr/local/share{% endif %}/{{ item.0.filename }}"
+          with_subelements:
+            - "{{ cloud_git_tools }}"
+            - commands
+            - skip_missing: true
+          when: item.0.filename in git_tools and item.0.type != "deb" and item.0.type != "exe"
+
         # A little bit ugly - each entry is bounded by marker lines which clutters up
         # the .mrconfig file
         # Note: Marker lines must be indented 7 to match other funcs in lib section
@@ -364,6 +397,25 @@
             # NOTE: In test-var.yml playbook we use playbook_dir + full path to file
             #       In actual role use role_path var
             block: "{{ lookup('ansible.builtin.file', role_path + '/files/git_mrconfig_lib') }}"
+
+        - name: git - Insert mrconfig update functions
+          blockinfile:
+            dest: "{{ git_mrconfig }}"
+            insertafter: '# ----- END Ansible managed lib -----'
+            marker: "       # ----- {mark} Ansible managed {{ item.repo }} update fnc -----"
+            block: |
+              {% filter indent(width=7, first=true) %}
+              update_{{ item.repo | regex_replace(".*/(.*)", '\1') }}() {
+                cd "$MR_REPO"
+                if check_commit ; then
+                {% for command in item.commands %}
+                  {{ command }}
+                {% endfor -%}
+                fi
+              }
+              {% endfilter %}
+          with_items: "{{ cloud_git_tools }}"
+          when: item.type == "git" and item.commands is defined and item.filename in git_tools
 
         - name: git - Insert mrconfig repos
           blockinfile:
