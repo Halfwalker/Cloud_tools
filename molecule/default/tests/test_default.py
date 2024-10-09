@@ -146,6 +146,7 @@ def test_dirs(host, directory):
 
 
 @pytest.mark.parametrize("symlink", [
+    '/usr/local/bin/akamai',
     '/usr/local/bin/kubectx',
     '/usr/local/bin/kubens',
     '/usr/local/bin/Kui',

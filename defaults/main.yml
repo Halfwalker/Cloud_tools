@@ -24,33 +24,34 @@ cloud_vagrant_plugins:
 
 # Default list of tools
 cloud_default_tools:
-  - minikube
-  - kind
-  - kubectl
-  - kubeadm
-  - kubectx
-  - kubens
-  - Kui
-  - k9s
-  - glasskube
-  - skaffold
-  - helm
-  - docker-compose
-  - dive
-  - awscli
-  - gimme-aws-creds
-  - ecs-cli
-  - eksctl
-  - linode-cli
-  - azure-cli
   # Disabled for now - also check molecule/default/tests/test_default.py
   # - hammer
-  - drone
-  - vault
+  - Kui
+  - awscli            # asdf
+  - azure-cli         # asdf
+  - dive              # asdf
+  - docker-compose    # asdf as docker-compose-v1
+  - drone             # asdf
+  - ecs-cli
+  - eksctl            # asdf
+  - gimme-aws-creds
+  - github-cli        # asdf
+  - glasskube
+  - helm              # asdf
+  - k9s               # asdf
+  - kind              # asdf
+  - kubeadm
+  - kubectl           # asdf
+  - kubectx           # asdf
+  - kubens
+  - linode-cli
+  - akamai
+  - minikube          # asdf
+  - skaffold          # asdf
+  - terraform         # asdf
+  - tfswitch          # asdf
   - vagrant
-  - terraform
-  - tfswitch
-  - github-cli
+  - vault             # asdf
 
 # This variable can be overridden on the cmdline to select which tools to install
 cloud_tools: "{{ cloud_default_tools }}"
@@ -192,6 +193,8 @@ cloud_ppa_packages:
 #           deb     - release has an ordinary .deb that can be installed
 # completion: Name of zsh/bash completion file in url or NONE
 # jmesquery:  Query to identify the exact download url we want
+# commands: List of commands to be executed in the download dir - usually used
+#           for git types, to compile and install
 # tracking: Entry for ~/.git-file-tracking to help with updating non-package items
 #             location_of_file repo_name command_to_get_current_version
 #             /usr/local/bin/fzf junegunn/fzf fzf --version | cut -d' ' -f1
@@ -204,6 +207,15 @@ cloud_git_tools:
     completion_bash: docker-compose
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
     tracking: '/usr/local/bin/docker-compose docker/compose /usr/local/bin/docker-compose --version | cut -d" " -f4'
+
+  - repo: akamai/cli
+    filename: akamai
+    type: exe
+    jmesquery: "assets[? ends_with (browser_download_url, 'linuxamd64')].browser_download_url"
+    tracking: '/usr/local/bin/akamai akamai/cli /usr/local/bin/akamai --version | cut -d" " -f3'
+    commands:
+      - 'ln -s /usr/local/bin/akamai-$(ls /usr/local/bin/akamai*amd64 | cut -d"/" -f5 | cut -d"-" -f2)-linuxamd64 /usr/local/bin/akamai'
+
   # tfswitch Terraform switcher
   - repo: warrensbox/terraform-switcher
     filename: tfswitch
@@ -216,6 +228,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? contains (browser_download_url, 'terraform-switcher') && ends_with (browser_download_url, 'linux_amd64.tar.gz')].browser_download_url"
     tracking: '/usr/local/bin/tfswitch warrensbox/terraform-switcher /usr/local/bin/tfswitch --version | cut -d" " -f2'
+
   # kubectx and kubens
   - repo: ahmetb/kubectx
     filename: kubectx
@@ -228,6 +241,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? contains (browser_download_url, 'kubectx_') && ends_with (browser_download_url, 'linux_x86_64.tar.gz')].browser_download_url"
     tracking: '/usr/local/bin/kubectx ahmetb/kubectx /usr/local/bin/kubectx --version'
+
   - repo: ahmetb/kubectx
     filename: kubens
     type: archive
@@ -239,6 +253,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? contains (browser_download_url, 'kubens_') && ends_with (browser_download_url, 'linux_x86_64.tar.gz')].browser_download_url"
     tracking: '/usr/local/bin/kubens ahmetb/kubectx /usr/local/bin/kubens --version'
+
   # Kui - kubectl with graphical results - runs under a desktop environment
   #       Need libnss3 libatk1.0-0 libatk-bridge2.0-0 libcup2 libdrm2
   - repo: kubernetes-sigs/kui
@@ -251,6 +266,7 @@ cloud_git_tools:
     completion_zsh: NONE
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-x64.zip')].browser_download_url"
+
   # glasskube - Kubernetes cluster package manager
   - repo: glasskube/glasskube
     filename: glasskube
@@ -259,6 +275,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, '_amd64.deb')].browser_download_url"
     tracking: '/usr/bin/glasskube glasskube/glasskube /usr/bin/glasskube --version | cut -d" " -f3'
+
   # k9s - Kubernetes cluster management CLI
   - repo: derailed/k9s
     filename: k9s
@@ -267,6 +284,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.deb')].browser_download_url"
     tracking: '/usr/bin/k9s derailed/k9s /usr/bin/k9s version | grep Version | sed "s/Version.*v//"'
+
   # dive - nice docker image analysis tool
   - repo: wagoodman/dive
     filename: dive
@@ -275,6 +293,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'amd64.deb')].browser_download_url"
     tracking: '/usr/bin/dive wagoodman/dive /usr/bin/dive --version | cut -d" " -f2'
+
   - repo: kubernetes-sigs/kind
     filename: kind
     type: exe
@@ -282,6 +301,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linux-amd64')].browser_download_url"
     tracking: '/usr/local/bin/kind kubernetes-sigs/kind /usr/local/bin/kind --version | cut -d" " -f3'
+    
   - repo: eksctl-io/eksctl
     filename: eksctl
     type: archive
@@ -289,6 +309,7 @@ cloud_git_tools:
     completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'Linux_amd64.tar.gz')].browser_download_url"
     tracking: '/usr/local/bin/eksctl weaveworks/eksctl /usr/local/bin/eksctl version'
+
   - repo: drone/drone-cli
     filename: drone
     type: archive
@@ -322,5 +343,6 @@ cloud_tools_template:
   type: "{{ item.1.type }}"
   unpack: "{{ item.1.unpack | default(omit) }}"
   links: "{{ item.1.links | default(omit) }}"
+  commands: "{{ item.1.commands | default(omit) }}"
   url: "{{ item[0].json | to_json | from_json | json_query(item[1].jmesquery) }}"
 
