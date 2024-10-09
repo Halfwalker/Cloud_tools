@@ -26,7 +26,7 @@
         path: "/home/testing/.zshrc"
         owner: root
         group: root
-        mode: 0644
+        mode: '0644'
         state: touch
 
     - name: Create blank /root/.zshrc
@@ -34,5 +34,5 @@
         path: "/root/.zshrc"
         owner: root
         group: root
-        mode: 0644
+        mode: '0644'
         state: touch

@@ -8,6 +8,7 @@ skip_list:
   - git-latest
   - fqcn[action-core]  # Use FQCN for builtin actions
   - fqcn[action]  # Use FQCN for builtin actions
+  - name[casing]
 warn_list:
   - package-latest
   - ignore-errors

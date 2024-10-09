@@ -237,7 +237,7 @@
       get_url:
         url: "{{ item.url }}"
         dest: "{{ item.dest }}"
-        mode: 0755
+        mode: '0755'
       with_items: "{{ cloud_binary_tools }}"
       when: item.name in cloud_tools
   
@@ -279,7 +279,7 @@
   
     - name: Show list of tools to be installed
       debug:
-        var=cloud_tools_info
+        var: cloud_tools_info
 
     - when: cloud_tools_info is defined
       block:
@@ -287,7 +287,7 @@
           get_url:
             url: "{{ item.url[0] }}"
             dest: "/usr/local/bin/{{ item.filename }}"
-            mode: 0755
+            mode: '0755'
           with_items: "{{ cloud_tools_info }}"
           when:
             - item.type == "exe"
@@ -303,7 +303,7 @@
             dest: "/tmp/{{ item.url[0] | basename }}"
             url_username: "{{ lookup('env', 'GH_USER') | default(omit) }}"
             url_password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
-            mode: 0755
+            mode: '0755'
           with_items: "{{ cloud_tools_info }}"
           when:
             - item.filename in cloud_tools
@@ -329,7 +329,7 @@
             creates: "{% if item.unpack is defined %}{{ item.unpack }}{% else %}/usr/local/bin{% endif %}/{{ item.filename }}"
             owner: "{{ username }}"
             group: "{{ groupname }}"
-            mode: 0755
+            mode: '0755'
           with_items: "{{ cloud_tools_info }}"
           when:
             - item.filename in cloud_tools
@@ -368,16 +368,16 @@
             - item.type == "deb"
             - item.filename in cloud_tools
   
-        - name: git - Run any commands associated with deb packages or direct exe
-          shell: "{{ item.1 }}"
+        - name: git - Run any commands associated with deb packages or direct exe # noqa: command-instead-of-shell
+          ansible.builtin.shell: "{{ item.1 }}"
           with_subelements:
             - "{{ cloud_git_tools }}"
             - commands
             - skip_missing: true
           when: item.0.filename in git_tools and (item.0.type == "deb" or item.0.type == "exe")
 
-        - name: git - Run any commands associated with repos
-          shell: "{{ item.1 }}"
+        - name: git - Run any commands associated with repos # noqa: command-instead-of-shell
+          ansible.builtin.shell: "{{ item.1 }}"
           args:
             chdir: "{% if item.0.unpack is defined %}{{ item.0.unpack }}{% else %}/usr/local/share{% endif %}/{{ item.0.filename }}"
           with_subelements:
@@ -536,7 +536,7 @@
       copy:
         dest: /etc/bash_completion.d/_aws
         force: yes
-        mode: 0644
+        mode: '0644'
         content: |
           complete -C '/usr/local/bin/aws_completer' aws
       when:
