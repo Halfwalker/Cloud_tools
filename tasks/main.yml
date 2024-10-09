@@ -374,7 +374,7 @@
             - "{{ cloud_git_tools }}"
             - commands
             - skip_missing: true
-          when: item.0.filename in git_tools and (item.0.type == "deb" or item.0.type == "exe")
+          when: item.0.filename in cloud_tools and (item.0.type == "deb" or item.0.type == "exe")
 
         - name: git - Run any commands associated with repos # noqa: command-instead-of-shell
           ansible.builtin.shell: "{{ item.1 }}"
@@ -384,7 +384,7 @@
             - "{{ cloud_git_tools }}"
             - commands
             - skip_missing: true
-          when: item.0.filename in git_tools and item.0.type != "deb" and item.0.type != "exe"
+          when: item.0.filename in cloud_tools and item.0.type != "deb" and item.0.type != "exe"
 
         # A little bit ugly - each entry is bounded by marker lines which clutters up
         # the .mrconfig file
