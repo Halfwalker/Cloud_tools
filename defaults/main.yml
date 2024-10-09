@@ -211,10 +211,10 @@ cloud_git_tools:
   - repo: akamai/cli
     filename: akamai
     type: exe
+    completion_zsh: NONE
+    completion_bash: NONE
     jmesquery: "assets[? ends_with (browser_download_url, 'linuxamd64')].browser_download_url"
     tracking: '/usr/local/bin/akamai akamai/cli /usr/local/bin/akamai --version | cut -d" " -f3'
-    commands:
-      - 'ln -s /usr/local/bin/akamai-$(ls /usr/local/bin/akamai*amd64 | cut -d"/" -f5 | cut -d"-" -f2)-linuxamd64 /usr/local/bin/akamai'
 
   # tfswitch Terraform switcher
   - repo: warrensbox/terraform-switcher
