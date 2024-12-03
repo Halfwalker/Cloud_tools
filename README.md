@@ -2,7 +2,7 @@
 
 ![Build Status](http://bondi.local:3001/api/badges/Halfwalker/ansible-cloud_tools/status.svg)
 
-This is a role to install a useful set of tools for dealing with cloud type things.
+This is a role to install a useful set of tools for dealing with cloud type things.  Includes a handy script `check_repos.sh` to check for updates to git repos for the tools.
 
 ### Install latest ansible with :
 ```

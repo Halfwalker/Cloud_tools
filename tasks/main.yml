@@ -53,7 +53,7 @@
         state: absent
       when: force_update
       with_items: "{{ cloud_aws_configs }}"
-  
+
     # changed_when: false so idempotence works
     - name: Ensure git repo tracking list files exist
       file:
@@ -67,7 +67,7 @@
         - "{{ git_mrconfig }}"
       # become_user: "{{ username }}"
       changed_when: false
-  
+
     # dlayer Appears to be a dead project
     # https://github.com/wercker/dlayer
     # Binary still works though, so could be put elsewhere
@@ -78,7 +78,7 @@
         mode: "{{ item.mode }}"
       with_items:
         - { src: dlayer.amd64, dest: /usr/local/bin/dlayer, mode: '0755' }
-  
+
     - name: Ensure AWS config dirs are there
       file:
         path: "/home/{{ username }}/{{ item }}"
@@ -89,7 +89,7 @@
       with_items:
         - .aws
       when: '"awscli" in cloud_tools or "gimme-aws-creds" in cloud_tools'
-  
+
     - name: Ensure puppet/hammer config dirs are there
       file:
         path: "/home/{{ username }}/{{ item }}"
@@ -100,7 +100,7 @@
       with_items:
         - .hammer
       when: '"hammer" in cloud_tools'
-  
+
     - name: Ensure bash_completion.d dir is there
       file:
         path: /etc/bash_completion.d
@@ -108,7 +108,7 @@
         owner: root
         group: root
         mode: '0755'
-  
+
     # https repos won't go through apt-cacher, so bypass them
     # NOTE: This has url patterns matching https repos from below
     - name: Copy apt config to bypass any apt-cacher-ng or other proxy
@@ -121,15 +121,15 @@
           Acquire::https::Proxy::packages.cloud.google.com "DIRECT";
         dest: /etc/apt/apt.conf.d/11cloud_tools
         mode: '0644'
-  
+
     - name: Install prerequisite tools
       apt:
         state: present
         install_recommends: no
         update_cache: yes
         name: "{{ cloud_prereq_packages.common + cloud_prereq_packages[ansible_distribution_release] }}"
-  
-  
+
+
     #
     # Install tools via python pip
     #
@@ -141,7 +141,7 @@
         packages_via_pip: "{{ packages_via_pip | default([]) + [item] }}"
       with_items: "{{ cloud_pip_packages }}"
       when: item in cloud_tools
-  
+
     # Only run when NOT in check mode, as python pkg_resources may not yet
     # have been installed
     - name: Install packages via pip
@@ -153,8 +153,8 @@
         - packages_via_pip is defined
         - packages_via_pip | length > 0
         - not ansible_check_mode
-  
-  
+
+
     #
     # Install awscli v2
     #
@@ -170,22 +170,22 @@
             group: "{{ groupname }}"
             mode: "{{ item.mode }}"
           with_items: "{{ cloud_aws_configs }}"
-  
+
         - name: Fetch awscli v2 latest
           unarchive:
             src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
             remote_src: yes
             dest: "/tmp"
             creates: "/tmp/aws"
-  
+
         - name: Install awscli v2
           command: /tmp/aws/install
           args:
             creates: /usr/local/bin/aws
       #
       # block
-  
-  
+
+
     #
     # Install tools via PPA
     #
@@ -196,7 +196,7 @@
       register: repo_check
       when: item.name in cloud_tools
       check_mode: no
-  
+
     # Now loop over the repo_check.results since that has each of the cloud_ppa_packages
     # dicts in it, under "item".  Hence the weird looking item.item.repo_name here.
     - name: Add APT repository if required
@@ -213,14 +213,14 @@
       loop: "{{ repo_check.results }}"
       when: item.item.name in cloud_tools and not item.stat.exists
       register: add_deb822
-  
+
     # add_deb822 has a list of "- ansible_loop_var: item" for each loop
     # Sets an overall changed: true if any item changed
-    - name: Update APT cache # noqa no-handler 
+    - name: Update APT cache # noqa no-handler
       ansible.builtin.apt:
         update_cache: yes
       when: add_deb822.changed
-  
+
     - name: Install tool(s) from PPA
       apt:
         state: present
@@ -228,8 +228,8 @@
         name: "{{ item.packages }}"
       loop: "{{ cloud_ppa_packages }}"
       when: item.name in cloud_tools
-  
-  
+
+
     #
     # Install binary tools directly
     #
@@ -240,14 +240,14 @@
         mode: '0755'
       with_items: "{{ cloud_binary_tools }}"
       when: item.name in cloud_tools
-  
-  
+
+
     #
     # Tools from github
     #
     # - debug:
     #     msg: "vault.user {{ vault_github_auth.name }} vault.token {{ vault_github_auth.token }} GH_USER {{ lookup('env', 'GH_USER') | default(omit) }} GH_TOKEN {{ lookup('env', 'GH_TOKEN') | default(omit) }}"
-  
+
     - name: Get latest release for each git package in cloud_tools
       uri:
         url: "https://api.github.com/repos/{{ item.repo }}/releases/latest"
@@ -265,7 +265,7 @@
       with_items: "{{ cloud_git_tools }}"
       when: item.filename in cloud_tools
       check_mode: no
-  
+
     - name: Build list of tools, versions, urls
       set_fact:
         cloud_tools_info: "{{ cloud_tools_info | default([]) + [cloud_tools_template] }}"
@@ -276,7 +276,7 @@
         - cloud_git_releases is defined
         - item.1.filename in cloud_tools
       check_mode: no
-  
+
     - name: Show list of tools to be installed
       debug:
         var: cloud_tools_info
@@ -292,7 +292,7 @@
           when:
             - item.type == "exe"
             - item.filename in cloud_tools
-  
+
         # NOTE: unarchive downloading from a remote url does not support username/password
         #       so we may run into github rate limiting
         #       Alternative is to use get_url first to pull the archive file (with auth)
@@ -308,7 +308,7 @@
           when:
             - item.filename in cloud_tools
             - item.type == "archive"
-  
+
         - name: git - Pre-create unpack dir
           file:
             path: "{{ item.unpack }}"
@@ -320,7 +320,7 @@
             - item.filename in cloud_tools
             - item.type == "archive"
             - item.unpack is defined
-  
+
         - name: git - Install archive type packages
           unarchive:
             src: "/tmp/{{ item.url[0] | basename }}"
@@ -334,7 +334,7 @@
           when:
             - item.filename in cloud_tools
             - item.type == "archive"
-  
+
         - name: git - Pre-create dirs for links
           file:
             path: "{{ item.1.dest | dirname }}"
@@ -344,7 +344,7 @@
             - links
             - skip_missing: true
           when: item.0.filename in cloud_tools
-  
+
         # NOTE: this task will fail in check mode since it depends on the src
         #       files existing from being unpacked by tasks above
         - name: git - Create links from downloaded git stuffs
@@ -359,7 +359,7 @@
             - links
             - skip_missing: true
           when: item.0.filename in cloud_tools
-  
+
         - name: Install deb packages
           apt:
             deb: "{{ item.url[0] }}"
@@ -367,7 +367,7 @@
           when:
             - item.type == "deb"
             - item.filename in cloud_tools
-  
+
         - name: git - Run any commands associated with deb packages or direct exe # noqa: command-instead-of-shell
           ansible.builtin.shell: "{{ item.1 }}"
           with_subelements:
@@ -445,7 +445,7 @@
             - item.type == "exe" or item.type == "archive" or item.type == "deb"
             - item.filename in cloud_tools
             - item.tracking is defined
-  
+
         # NOTE: This is also installed by the ansible-git_tools role
         #       Make sure that this one matches that one
         - name: Copy check_repos.sh script
@@ -457,10 +457,10 @@
             mode: "{{ item.mode }}"
           with_items:
             - { src: check_repos.sh.j2, dest: /usr/local/bin/check_repos.sh, mode: '0755' }
-  
+
       # block
-  
-  
+
+
     #
     # Install shell completions
     # Will only work if bash-completion is installed for bash
@@ -470,7 +470,7 @@
         path: /usr/bin/zsh
       register: zsh_installed
       check_mode: no
-  
+
     - name: Fetch zsh completion for the tools
       get_url:
         url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/zsh/{{ item.completion_zsh }}
@@ -481,7 +481,7 @@
         - item.completion_zsh != "NONE"
         - zsh_installed.stat.exists
         - item.filename in cloud_tools
-  
+
     - name: Fetch bash completion for the tools
       get_url:
         url: https://raw.githubusercontent.com/{{ item.repo }}/master/contrib/completion/bash/{{ item.completion_bash }}
@@ -491,7 +491,7 @@
       when:
         - item.completion_bash != "NONE"
         - item.filename in cloud_tools
-  
+
     - name: Create zsh completion for tools that generate configs
       shell: "{{ item }} completion zsh > /usr/share/zsh/vendor-completions/_{{ item | basename }}"
       args:
@@ -506,7 +506,7 @@
       when:
         - zsh_installed.stat.exists
         - item | basename in cloud_tools
-  
+
     - name: Create bash completion for tools that generate configs
       shell: "{{ item }} completion bash > /etc/bash_completion.d/_{{ item | basename }}"
       args:
@@ -520,7 +520,7 @@
         - /usr/local/bin/skaffold
       when:
         - item | basename in cloud_tools
-  
+
     # bash completion already installed by package
     - name: Create Azure cli zsh completion
       file:
@@ -531,7 +531,7 @@
       when:
         - zsh_installed.stat.exists
         - '"azure-cli" in cloud_tools'
-  
+
     - name: Create AWS cli bash completion
       copy:
         dest: /etc/bash_completion.d/_aws

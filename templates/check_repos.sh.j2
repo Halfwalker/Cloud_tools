@@ -3,14 +3,21 @@
 # Check all tracked files and dirs for updates
 #
 # .git-repos-tracked
-# /home/deano/.vim/bundle/Vundle.vim
-# /home/deano/.vim/bundle/indentLine
-# /home/deano/.vim/bundle/vim-terraform
-# /home/deano/.vim/bundle/vim-bbye
-# /home/deano/.vim/bundle/vim-quickui
+# /home/alice/.vim/bundle/Vundle.vim
+# /home/alice/.vim/bundle/indentLine
+# /home/alice/.vim/bundle/vim-terraform
+# /home/alice/.vim/bundle/vim-bbye
+# /home/alice/.vim/bundle/vim-quickui
 
 # .git-files-tracked
-# /usr/local/bin/fzf junegunn/fzf fzf --version | cut -d' ' -f1
+#   repo       cmd  parameters to get version
+# junegunn/fzf fzf --version | cut -d' ' -f1
+
+# Requires a ~/.github_auth with current github token
+if [ ! -e {{ github_auth }} ] ; then
+    echo "Need a github auth token in {{ github_auth }}"
+    exit 1
+fi
 
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
@@ -32,21 +39,22 @@ while read f ; do
         printf "%-65s" $(pwd)
         git status -s -b | egrep -v "^ M.*|^\?\?.*"
     fi
-done < {{ git_repos_tracked }} ; cd $GR33
+done < <(sort {{ git_repos_tracked }})
+cd $GR33
 
 # Check git files
 while read f ; do
-    TRACKED=$(echo $f | cut -d' ' -f1)
-    REPO=$(echo $f | cut -d' ' -f2)
-    VERSION=$(echo $f | cut -d' ' -f3-)
-    REPOVER=$(curl --silent --request GET --header "Authorization: Bearer {{ vault_github_auth.token }}" --url "https://api.github.com/repos/${REPO}/releases/latest" | jq -r .tag_name| sed 's/[^0-9.]*//g')
+    REPO=$(echo $f | cut -d' ' -f1)
+    TRACKED=$(echo $f | cut -d' ' -f2)
+    VERSION=$(echo $f | cut -d' ' -f2-)
+    REPOVER=$(curl --silent --request GET --header "Authorization: Bearer $(<{{ github_auth }})" --url "https://api.github.com/repos/${REPO}/releases/latest" | jq -r .tag_name| sed 's/[^0-9.]*//g')
     CURRVER=$(eval ${VERSION}| sed 's/[^0-9.]*//g')
 
     echo -n "${NORMAL}${TRACKED} Current $CURRVER Github $REPOVER "
     if verlt  ${CURRVER} ${REPOVER} ; then
-        echo "${RED}Needs update - https://github.com/${REPO}/releases" 
+        echo "${RED}Needs update - https://github.com/${REPO}/releases"
     else
         echo "${GREEN}OK"
     fi
-done < ~/.git-files-tracked | column -t
+done < <(sort -k2 {{ git_files_tracked }}) | column -t
 cd $GR33
