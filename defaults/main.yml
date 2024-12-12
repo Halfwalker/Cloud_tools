@@ -10,6 +10,9 @@ username: "{{ ansible_user_id }}"
 github_prefix: "https://github.com"
 github_api:    "https://api.github.com/repos"
 
+# Location of github auth token file
+github_auth: "/home/{{ username }}/.github_auth"
+
 # Location of cloned git repos, in case it isn't defined elsewhere
 git_repos_tracked: "/home/{{ username }}/.git-repos-tracked"
 git_files_tracked: "/home/{{ username }}/.git-files-tracked"
