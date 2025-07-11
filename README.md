@@ -51,12 +51,16 @@ ansible-playbook -K -i hosts cloud_tools.yml -l localhost
 * [AWS eksctl](https://github.com/weaveworks/eksctl)
 * [Azure azure-cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 * [Linode linode-cli](https://www.linode.com/products/cli/)
-* [Terraform](https://www.terraform.io/downloads) (not supported in Bionic/18.04)
-* [Terraform-switcher](https://github.com/warrensbox/terraform-switcher)
-* [vault](https://www.vaultproject.io/downloads) (not supported in Bionic/18.04)
-* [vagrant](https://www.vagrantup.com/) (not supported in Bionic/18.04)
+* [terraform](https://www.terraform0io/downloads) (not supported in Focal/20.04 or below)
+* [Terraform-switcher tfswitch](https://github.com/warrensbox/terraform-switcher)
+* [vault](https://www.vaultproject.io/downloads) (not supported in Focal/20.04 or below)
+* [vagrant](https://www.vagrantup.com/) (not supported in Focal/20.04 or below)
 * [Hammer](http://deb.theforeman.org/)
 * [github-cli](https://cli.github.com/)
+
+Unfortunately Hashicorp no longer supports Ubuntu Focal/20.04 since it went
+EOL in May 2025.  So any Hashicorp tools will be removed from the install list
+if we're running under Ubuntu Focal/20.04
 
 ### Install subset of tools
 

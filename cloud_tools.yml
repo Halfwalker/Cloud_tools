@@ -61,6 +61,13 @@
     # This variable can be overridden on the cmdline to select which tools to install
     cloud_tools: "{{ cloud_default_tools }}"
 
+    # Hashicorp tools - we need this to remove them from cloud_tools if we're running
+    # under Ubuntu Focal/20.04 since that's no longer supported as of May 2025
+    cloud_hashicorp_tools:
+      - terraform
+      - vagrant
+      - vault
+
     # We need these tools for the playbook to work
     cloud_prereq_packages:
       common:
@@ -313,6 +320,13 @@
       url: "{{ item[0].json[0] | to_json | from_json | json_query(item[1].jmesquery) }}"
 
   tasks:
+    # Unfortunately Hashicorp no longer supports Ubuntu Focal/20.04 since it went
+    # EOL in May 2025.  So check the 'cloud_tools' var and remove any Hashicorp tools
+    - name: Remove Hashicorp tools if under Ubuntu 20.04/focal
+      set_fact:
+        cloud_tools: "{{ cloud_tools | difference(cloud_hashicorp_tools) }}"
+      when: ansible_distribution_version is version('20.04', '<=')
+
     # Need a timeout to allow molecule testing to continue during CI/CD
     - name: Show what tools are to be installed
       pause:
