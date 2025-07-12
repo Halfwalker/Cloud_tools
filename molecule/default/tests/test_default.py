@@ -9,8 +9,21 @@ with warnings.catch_warnings():
     # Hint: From now on, try running molecule test --destroy never
     import pytest
 
+# Define which packages to skip based on Ubuntu version
+SKIP_PACKAGES_BY_RELEASE = {
+    "20.04": {"vault", "terraform", "vagrant"},
+    # Add more if needed, e.g.:
+    # "18.04": {"vault", "terraform", "helm"},
+}
+
 testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
+
+
+@pytest.fixture(scope="module")
+def ubuntu_release(host):
+    return host.system_info.release
+
 
 @pytest.mark.parametrize("name", [
     "kubeadm",
@@ -20,10 +33,22 @@ testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
     # "ruby-hammer-cli",
     # "ruby-hammer-cli-foreman",
     "vault",
+    "vagrant",
+    "terraform",
     "gh",
 ])
 
-def test_packages(host, name):
+def test_packages(host, name, ubuntu_release):
+    skipped = set()
+
+    # Merge all skipped packages for versions <= current release
+    for version, packages in SKIP_PACKAGES_BY_RELEASE.items():
+        if ubuntu_release <= version:
+            skipped |= packages
+
+    if name in skipped:
+        pytest.skip(f"{name} is not expected on Ubuntu <= {ubuntu_release}")
+
     pkg = host.package(name)
     assert pkg.is_installed
 
@@ -107,7 +132,17 @@ def test_files(host, name):
     '/usr/share/zsh/vendor-completions/_skaffold',
 ])
 
-def test_files_root(host, name):
+def test_files_root(host, name, ubuntu_release):
+    skipped = set()
+
+    # Merge all skipped packages for versions <= current release
+    for version, packages in SKIP_PACKAGES_BY_RELEASE.items():
+        if ubuntu_release <= version:
+            skipped |= packages
+
+    if os.path.basename(name) in skipped:
+        pytest.skip(f"{name} is not expected on Ubuntu <= {ubuntu_release}")
+
     f = host.file(name)
 
     assert f.is_file
