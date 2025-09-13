@@ -40,6 +40,7 @@ def ubuntu_release(host):
 
 def test_packages(host, name, ubuntu_release):
     skipped = set()
+    all_variables = host.ansible.get_variables()
 
     # Merge all skipped packages for versions <= current release
     for version, packages in SKIP_PACKAGES_BY_RELEASE.items():
@@ -48,6 +49,11 @@ def test_packages(host, name, ubuntu_release):
 
     if name in skipped:
         pytest.skip(f"{name} is not expected on Ubuntu <= {ubuntu_release}")
+
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(name)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
 
     pkg = host.package(name)
     assert pkg.is_installed
@@ -80,9 +86,82 @@ def test_files(host, name):
     all_variables = host.ansible.get_variables()
     f = host.file(name)
 
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(name)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
+
     assert f.is_file
     assert f.user == all_variables['username']
     assert f.group == all_variables['groupname']
+
+
+# pipx installs packages to /root/.local/.share... for 24.04+
+# but to /usr/local/bin for lower than 24.04
+@pytest.mark.parametrize("name", [
+    '/root/.local/share/pipx/venvs/gimme-aws-creds/bin/gimme-aws-creds',
+    '/root/.local/share/pipx/venvs/linode-cli/bin/linode-cli',
+])
+
+def test_pipx_files_24(host, name, ubuntu_release):
+    skipped = set()
+    all_variables = host.ansible.get_variables()
+    f = host.file(name)
+
+    if float(ubuntu_release) <= 24.04:
+        pytest.skip(f"Skipping {name} for Ubuntu {ubuntu_release} (requires >= 24.04)")
+
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(name)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
+
+    # Merge all skipped packages for versions <= current release
+    for version, packages in SKIP_PACKAGES_BY_RELEASE.items():
+        if ubuntu_release <= version:
+            skipped |= packages
+
+    if os.path.basename(name) in skipped:
+        pytest.skip(f"{name} is not expected on Ubuntu <= {ubuntu_release}")
+
+    assert f.is_file
+    assert f.user == all_variables['username']
+    assert f.group == all_variables['groupname']
+
+
+# pipx installs packages to /root/.local/.share... for 24.04+
+# but to /usr/local/bin for lower than 22.04
+# These are root:root
+@pytest.mark.parametrize("name", [
+    '/usr/local/bin/gimme-aws-creds',
+    '/usr/local/bin/linode-cli',
+])
+
+def test_pipx_files_old(host, name, ubuntu_release):
+    skipped = set()
+    all_variables = host.ansible.get_variables()
+
+    if float(ubuntu_release) >= 22.04:
+        pytest.skip(f"Skipping {name} for Ubuntu {ubuntu_release} (requires <= 22.04)")
+
+    # Merge all skipped packages for versions <= current release
+    for version, packages in SKIP_PACKAGES_BY_RELEASE.items():
+        if ubuntu_release <= version:
+            skipped |= packages
+
+    if os.path.basename(name) in skipped:
+        pytest.skip(f"{name} is not expected on Ubuntu <= {ubuntu_release}")
+
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(name)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
+
+    f = host.file(name)
+
+    assert f.is_file
+    assert f.user == 'root'
+    assert f.group == 'root'
 
 
 # # These are owned by root:user-group
@@ -107,14 +186,12 @@ def test_files(host, name):
     '/usr/bin/kubeadm',
     '/usr/bin/kubelet',
     '/usr/bin/kubectl',
+    '/usr/bin/glasskube',
+    '/usr/bin/k9s',
     '/usr/local/bin/skaffold',
     '/usr/sbin/helm',
-    '/usr/local/bin/docker-machine',
-    '/usr/local/bin/docker-compose',
     '/usr/bin/dive',
-    '/usr/local/bin/gimme-aws-creds',
     '/usr/local/bin/ecs-cli',
-    '/usr/local/bin/linode-cli',
     '/usr/bin/az',
     # '/usr/bin/hammer',
     '/usr/bin/gh',
@@ -134,6 +211,7 @@ def test_files(host, name):
 
 def test_files_root(host, name, ubuntu_release):
     skipped = set()
+    all_variables = host.ansible.get_variables()
 
     # Merge all skipped packages for versions <= current release
     for version, packages in SKIP_PACKAGES_BY_RELEASE.items():
@@ -142,6 +220,11 @@ def test_files_root(host, name, ubuntu_release):
 
     if os.path.basename(name) in skipped:
         pytest.skip(f"{name} is not expected on Ubuntu <= {ubuntu_release}")
+
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(name)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
 
     f = host.file(name)
 
@@ -158,9 +241,14 @@ def test_dirs(host, directory):
     all_variables = host.ansible.get_variables()
     f = host.file(directory)
 
+    # Skip if the tool is not in the cloud_tools list
+    if 'Kui' not in all_variables.get('cloud_tools', []):
+        pytest.skip("Kui is not in cloud_tools list to install")
+
     assert f.is_directory
     assert f.user == all_variables['username']
     assert f.group == all_variables['groupname']
+
 
 @pytest.mark.parametrize("directory", [
     '/usr/local/share/kubetools',
@@ -170,10 +258,14 @@ def test_dirs_root(host, directory):
     all_variables = host.ansible.get_variables()
     f = host.file(directory)
 
+    # Skip if neither kubectx nor kubens is in the cloud_tools list
+    kubetools = ['kubectx', 'kubens']
+    if not any(tool in all_variables.get('cloud_tools', []) for tool in kubetools):
+        pytest.skip("Neither kubectx nor kubens is in cloud_tools list to install")
+
     assert f.is_directory
     assert f.user == 'root'
     assert f.group == 'root'
-
 
 
 @pytest.mark.parametrize("symlink", [
@@ -183,7 +275,33 @@ def test_dirs_root(host, directory):
 ])
 
 def test_symlink(host, symlink):
+    all_variables = host.ansible.get_variables()
     f = host.file(symlink)
+
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(symlink)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
+
+    assert f.is_symlink
+
+
+@pytest.mark.parametrize("symlink", [
+    '/root/.local/bin/gimme-aws-creds',
+    '/root/.local/bin/linode-cli',
+])
+
+def test_symlink_24(host, symlink, ubuntu_release):
+    all_variables = host.ansible.get_variables()
+    f = host.file(symlink)
+
+    # Skip if the tool is not in the cloud_tools list
+    tool_name = os.path.basename(symlink)
+    if tool_name not in all_variables.get('cloud_tools', []):
+        pytest.skip(f"{tool_name} is not in cloud_tools list to install")
+
+    if float(ubuntu_release) >= 22.04:
+        pytest.skip(f"Skipping {tool_name} for Ubuntu {ubuntu_release} (requires <= 22.04)")
 
     assert f.is_symlink
 
