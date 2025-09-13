@@ -69,3 +69,7 @@ Build a list of the tools to install with the following syntax - set the variabl
 ansible-playbook -K -i hosts cloud_tools.yml -l localhost --extra-vars '{cloud_tools: [ awscli, eksctl, kubectl ] }'
 ```
 
+For testing with molecule, can use a cmdline like
+```
+molecule converge -- --extra-vars '{cloud_tools: [ gimme-aws-creds, linode-cli, ecs-cli ] }'
+```
