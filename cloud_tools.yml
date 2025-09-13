@@ -171,9 +171,9 @@
           - azure-cli
       - name: helm
         repo_name: helm
-        uris: https://baltocdn.com/helm/stable/debian
-        key: https://baltocdn.com/helm/signing.asc
-        suites: all
+        uris: https://packages.buildkite.com/helm-linux/helm-debian/any/
+        key: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+        suites: any
         component: main
         packages:
           - helm
