@@ -30,33 +30,35 @@
 
     # Default list of tools
     cloud_default_tools:
-      - minikube
-      - kind
-      - kubectl
-      - kubeadm
-      - kubectx
-      - kubens
-      - Kui
-      - skaffold
-      - helm
-      - docker-machine
-      - docker-compose
-      - dlayer
-      - dive
-      - awscli
-      - gimme-aws-creds
-      - ecs-cli
-      - eksctl
-      - linode-cli
-      - azure-cli
       # Disabled for now - also check molecule/default/tests/test_default.py
       # - hammer
+      - Kui
+      - akamai
+      - awscli
+      - azure-cli
+      - dive
+      - dlayer
       - drone
-      - vault
+      - ecs-cli
+      - eksctl
+      - gimme-aws-creds
+      - github-cli
+      - glasskube
+      - helm
+      - k9s
+      - kind
+      - kubeadm
+      - kubectl
+      - kubectx
+      - kubens
+      - linode-cli
+      - minikube
+      - packer
+      - skaffold
       - terraform
       - tfswitch
       - vagrant
-      - github-cli
+      - vault
 
     # This variable can be overridden on the cmdline to select which tools to install
     cloud_tools: "{{ cloud_default_tools }}"
@@ -64,6 +66,7 @@
     # Hashicorp tools - we need this to remove them from cloud_tools if we're running
     # under Ubuntu Focal/20.04 since that's no longer supported as of May 2025
     cloud_hashicorp_tools:
+      - packer
       - terraform
       - vagrant
       - vault
@@ -208,19 +211,12 @@
     # completion: Name of zsh/bash completion file in url or NONE
     # jmesquery:  Query to identify the exact download url we want
     cloud_git_tools:
-      # Super annoying, docker-{machine,compose} use DIFFERENT completion filenames
-      - repo: docker/machine
-        filename: docker-machine
+      - repo: akamai/cli
+        filename: akamai
         type: exe
-        completion_zsh: _docker-machine
-        completion_bash: docker-machine.bash
-        jmesquery: "assets[? ends_with (browser_download_url, 'Linux-x86_64')].browser_download_url"
-      - repo: docker/compose
-        filename: docker-compose
-        type: exe
-        completion_zsh: _docker-compose
-        completion_bash: docker-compose
-        jmesquery: "assets[? ends_with (browser_download_url, 'linux-x86_64')].browser_download_url"
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, 'linuxamd64')].browser_download_url"
       # tfswitch Terraform switcher
       - repo: warrensbox/terraform-switcher
         filename: tfswitch
@@ -266,6 +262,23 @@
         completion_zsh: NONE
         completion_bash: NONE
         jmesquery: "assets[? ends_with (browser_download_url, 'linux-x64.zip')].browser_download_url"
+
+      # glasskube - Kubernetes cluster package manager
+      - repo: glasskube/glasskube
+        filename: glasskube
+        type: deb
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, '_amd64.deb')].browser_download_url"
+
+      # k9s - Kubernetes cluster management CLI
+      - repo: derailed/k9s
+        filename: k9s
+        type: deb
+        completion_zsh: NONE
+        completion_bash: NONE
+        jmesquery: "assets[? ends_with (browser_download_url, 'linux_amd64.deb')].browser_download_url"
+
       # dive - nice docker image analysis tool
       - repo: wagoodman/dive
         filename: dive
