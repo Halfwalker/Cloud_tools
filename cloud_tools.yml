@@ -85,7 +85,11 @@
         - python{{ ansible_python.version.major }}-keyrings.alt
         - python{{ ansible_python.version.major }}-wheel
         - unzip
+      noble:
+        - pipx
+        - python{{ ansible_python.version.major }}-oauthlib
       jammy:
+        - pipx
         - python{{ ansible_python.version.major }}-oauthlib
       focal:
         - python{{ ansible_python.version.major }}-oauth
@@ -468,6 +472,22 @@
 
       # Only run when NOT in check mode, as python pkg_resources may not yet
       # have been installed
+      # Recent pip installs can't be done outside a virtualenv for fear of breaking
+      # system python packages.  So we use pipx for applications
+      - name: Install packages via pipx
+        community.general.pipx:
+          name: "{{ item }}"
+          state: latest
+        with_items: "{{ packages_via_pip }}"
+        when:
+          - packages_via_pip is defined
+          - packages_via_pip | length > 0
+          - not ansible_check_mode
+          - ansible_distribution_version is version('20.04', '>')
+
+      # But pipx not available for 18.04, regular pip will work here
+      # Only run when NOT in check mode, as python pkg_resources may not yet
+      # have been installed
       - name: Install packages via pip
         pip:
           name: "{{ packages_via_pip }}"
@@ -477,6 +497,7 @@
           - packages_via_pip is defined
           - packages_via_pip | length > 0
           - not ansible_check_mode
+          - ansible_distribution_version is version('20.04', '<=')
 
 
       #
